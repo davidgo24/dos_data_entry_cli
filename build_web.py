@@ -49,6 +49,7 @@ def generate_web_html() -> str:
     .emp-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
     .emp-name { font-size: 1.5rem; font-weight: 700; }
     .emp-id { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text-muted); }
+    .emp-header .emp-id { font-size: 1rem; color: var(--accent); background: rgba(34, 197, 94, 0.15); padding: 0.25rem 0.6rem; border-radius: 6px; display: inline-block; margin-top: 0.35rem; }
     .badge { padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
     .badge.operator { background: rgba(34, 197, 94, 0.2); color: var(--accent); }
     .badge.supervisor { background: rgba(107, 114, 128, 0.3); color: var(--text-muted); }
@@ -56,21 +57,32 @@ def generate_web_html() -> str:
     .run-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; }
     .run-paddle { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 600; color: var(--accent); }
     .run-block { color: var(--text-muted); font-size: 0.9rem; }
-    .run-times { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1rem; }
-    @media (max-width: 600px) { .run-times { grid-template-columns: repeat(2, 1fr); } }
+    .run-times { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; margin-bottom: 1rem; }
+    .run-group { background: rgba(0,0,0,0.2); border-radius: 8px; padding: 1rem; border: 1px solid var(--border); }
+    .run-group-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .run-group-time { font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 500; margin-bottom: 0.35rem; }
+    .run-group-hrs { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; }
+    .run-group-hrs.hrs { color: var(--accent); }
+    .run-group-hrs.ot { color: var(--warn); }
+    .actual-segments { margin-top: 0.5rem; }
+    .segment-line { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; margin-bottom: 0.35rem; }
+    .segment-line:last-child { margin-bottom: 0; }
+    .segment-line .seg-code { color: var(--text-muted); font-size: 0.8rem; margin-right: 0.4rem; }
+    .segment-line.guar .seg-code { color: var(--accent); }
+    .segment-line.ot .seg-code { color: var(--warn); }
+    .segment-total { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; padding-top: 0.35rem; border-top: 1px dashed var(--border); }
     .run-time { display: flex; flex-direction: column; gap: 0.2rem; }
     .run-time-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
     .run-time-val { font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 500; }
-    .run-time-val.hrs { color: var(--accent); }
-    .run-time-val.ot { color: var(--warn); }
-    .run-notes { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border); }
+    .note-banner { background: rgba(245, 158, 11, 0.12); border-left: 4px solid var(--warn); padding: 0.75rem 1rem; margin-top: 0.5rem; border-radius: 0 6px 6px 0; }
+    .note-banner:first-of-type { margin-top: 0.75rem; }
+    .note-banner-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--warn); margin-bottom: 0.25rem; }
+    .note-banner-content { font-size: 0.9rem; color: var(--text); }
     .entry-section { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
     .entry-section h4 { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
     .entry-row { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
-    .entry-row label { font-size: 0.9rem; color: var(--text-muted); min-width: 120px; }
-    .entry-row input, .entry-row select { padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 0.9rem; }
-    .entry-row input:focus, .entry-row select:focus { outline: none; border-color: var(--accent); }
-    .entry-row input[type="number"] { width: 80px; }
+    .entry-row label { font-size: 0.9rem; color: var(--text-muted); min-width: 80px; }
+    .entry-row input { padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 0.9rem; flex: 1; min-width: 200px; }
     .nav-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
     .nav-btn { padding: 0.6rem 1.25rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 0.9rem; font-weight: 500; cursor: pointer; }
     .nav-btn:hover { background: var(--surface2); }
@@ -171,8 +183,47 @@ def generate_web_html() -> str:
     function filtered() { return filter === 'operators' ? EMP.filter(e => !e.skip) : EMP; }
 
     function formatHrs(v) { return v == null ? '—' : Number(v).toFixed(2); }
+    function hrsToHMM(v) {
+      if (v == null) return '—';
+      const h = Math.floor(v);
+      const m = Math.round((v - h) * 60);
+      return m < 10 ? h + ':0' + m : h + ':' + m;
+    }
     function isOT(p, a) { return a != null && a > 8.01; }
     function isShort(p, a) { return a != null && a < 7.99 && a > 0; }
+
+    function parseTime(s) {
+      if (!s || typeof s !== 'string') return 0;
+      const [h, m] = s.split(':').map(x => parseInt(x, 10) || 0);
+      return h * 60 + m;
+    }
+    function formatTime(mins) {
+      const h = Math.floor(mins / 60) % 24;
+      const m = Math.round(mins % 60);
+      return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+    }
+    function getActualSegments(r) {
+      const ah = r.actual_hrs;
+      if (ah == null || ah <= 0) return null;
+      if (ah >= 7.99 && ah <= 8.01) {
+        return [{ code: '1020 REG', start: r.actual_start, end: r.actual_end, type: 'reg' }];
+      }
+      if (ah < 8) {
+        const guarHrs = 8 - ah;
+        const endMins = parseTime(r.actual_end) + Math.round(guarHrs * 60);
+        const guarEnd = formatTime(endMins);
+        return [
+          { code: '1020 REG', start: r.actual_start, end: r.actual_end, type: 'reg' },
+          { code: '1000 GUAR', start: r.actual_end, end: guarEnd, type: 'guar' }
+        ];
+      }
+      const regEndMins = parseTime(r.actual_start) + 8 * 60;
+      const regEnd = formatTime(regEndMins);
+      return [
+        { code: '1020 REG', start: r.actual_start, end: regEnd, type: 'reg' },
+        { code: '1013 OT1.5', start: regEnd, end: r.actual_end, type: 'ot' }
+      ];
+    }
 
     function renderList() {
       const list = document.getElementById('empList');
@@ -187,23 +238,31 @@ def generate_web_html() -> str:
       if (F.length === 0) { main.innerHTML = '<div class="empty-state"><p>No employees match.</p></div>'; return; }
       const e = F[selectedIdx];
       const runsHtml = e.runs.map(r => {
-        const needsG = isShort(r.planned_hrs, r.actual_hrs);
-        const needsOT = isOT(r.planned_hrs, r.actual_hrs);
-        const notes = [r.labels, r.driver_notes, r.internal_notes].filter(Boolean).join(' · ');
-        return `<div class="run-card"><div class="run-header"><span class="run-paddle">${r.paddle}</span>${r.block ? '<span class="run-block">Block ' + r.block + '</span>' : ''}</div><div class="run-times"><div class="run-time"><span class="run-time-label">Planned</span><span class="run-time-val">${r.planned_start} – ${r.planned_end}</span></div><div class="run-time"><span class="run-time-label">Actual</span><span class="run-time-val">${r.actual_start} – ${r.actual_end}</span></div><div class="run-time"><span class="run-time-label">Planned Hrs</span><span class="run-time-val hrs">${formatHrs(r.planned_hrs)}</span></div><div class="run-time"><span class="run-time-label">Actual Hrs</span><span class="run-time-val ${needsOT ? 'ot' : 'hrs'}">${formatHrs(r.actual_hrs)}${needsG ? ' ⚠ Guarantee' : ''}${needsOT ? ' OT' : ''}</span></div></div>${r.vehicle ? '<div class="run-time"><span class="run-time-label">Vehicle</span><span class="run-time-val">' + r.vehicle + '</span></div>' : ''}${notes ? '<div class="run-notes">' + notes + '</div>' : ''}</div>`;
+        const segments = getActualSegments(r);
+        const noteBanners = [];
+        if (r.driver_notes) noteBanners.push(`<div class="note-banner"><div class="note-banner-label">Driver Notes:</div><div class="note-banner-content">${r.driver_notes}</div></div>`);
+        if (r.internal_notes) noteBanners.push(`<div class="note-banner"><div class="note-banner-label">Internal Notes:</div><div class="note-banner-content">${r.internal_notes}</div></div>`);
+        if (r.labels) noteBanners.push(`<div class="note-banner"><div class="note-banner-label">Labels:</div><div class="note-banner-content">${r.labels}</div></div>`);
+        let actualHtml;
+        if (segments && segments.length > 0) {
+          actualHtml = '<div class="actual-segments">' + segments.map(s => `<div class="segment-line ${s.type}"><span class="seg-code">${s.code}</span>${s.start} – ${s.end}</div>`).join('') + '<div class="segment-total">' + hrsToHMM(r.actual_hrs) + '</div></div>';
+        } else {
+          const needsG = isShort(r.planned_hrs, r.actual_hrs);
+          const needsOT = isOT(r.planned_hrs, r.actual_hrs);
+          actualHtml = `<div class="run-group-time">${r.actual_start} – ${r.actual_end}</div><div class="run-group-hrs ${needsOT ? 'ot' : 'hrs'}">${formatHrs(r.actual_hrs)} hrs${needsG ? ' ⚠ Guarantee' : ''}${needsOT ? ' OT' : ''}</div>`;
+        }
+        return `<div class="run-card"><div class="run-header"><span class="run-paddle">${r.paddle}</span>${r.block ? '<span class="run-block">Block ' + r.block + '</span>' : ''}</div><div class="run-times"><div class="run-group"><div class="run-group-label">Planned</div><div class="run-group-time">${r.planned_start} – ${r.planned_end}</div><div class="run-group-hrs hrs">${formatHrs(r.planned_hrs)} hrs</div></div><div class="run-group"><div class="run-group-label">Actual</div>${actualHtml}</div></div>${r.vehicle ? '<div class="run-time" style="margin-top:0.5rem"><span class="run-time-label">Vehicle</span><span class="run-time-val">' + r.vehicle + '</span></div>' : ''}${noteBanners.join('')}</div>`;
       }).join('');
 
-      main.innerHTML = `<div class="emp-card"><div class="emp-header"><div><div class="emp-name">${e.name}</div><div class="emp-id">Employee ID: ${e.employee_id}</div></div><span class="badge ${e.employee_type}">${e.skip ? 'Skip (Supervisor)' : 'Operator'}</span></div><div class="runs">${runsHtml}</div>${!e.skip ? '<div class="entry-section"><h4>Data Entry</h4><div class="entry-row"><label>Guarantee Hrs</label><input type="number" step="0.25" min="0" max="8" placeholder="—" id="guaranteeHrs"></div><div class="entry-row"><label>OT Type</label><select id="otType"><option value="">— Select —</option><option value="cte">CTE</option><option value="lpi">LPI</option><option value="paid_as_ot">Paid as OT</option></select></div><div class="entry-row"><label>Notes</label><input type="text" placeholder="Optional notes..." id="entryNotes" style="flex:1;min-width:200px"></div></div>' : ''}<div class="nav-bar"><button class="nav-btn" id="btnPrev">← Previous</button><div class="progress">${filtered().findIndex(x => x.employee_id === e.employee_id) + 1} / ${filtered().length}</div><div>${!e.skip ? '<button class="nav-btn primary" id="btnDone">Mark Done & Next</button>' : ''}<button class="nav-btn" id="btnNext">Next →</button></div></div></div>`;
+      main.innerHTML = `<div class="emp-card"><div class="emp-header"><div><div class="emp-name">${e.name}</div><div class="emp-id">Employee ID: ${e.employee_id}</div></div><span class="badge ${e.employee_type}">${e.skip ? 'Skip (Supervisor)' : 'Operator'}</span></div><div class="runs">${runsHtml}</div>${!e.skip ? '<div class="entry-section"><h4>Notes</h4><div class="entry-row"><label>Notes</label><input type="text" placeholder="Optional notes for this employee..." id="entryNotes"></div></div>' : ''}<div class="nav-bar"><button class="nav-btn" id="btnPrev">← Previous</button><div class="progress">${filtered().findIndex(x => x.employee_id === e.employee_id) + 1} / ${filtered().length}</div><div>${!e.skip ? '<button class="nav-btn primary" id="btnDone">Mark Done & Next</button>' : ''}<button class="nav-btn" id="btnNext">Next →</button></div></div></div>`;
 
       const id = e.employee_id;
-      const gInput = document.getElementById('guaranteeHrs');
-      const otSelect = document.getElementById('otType');
       const notesInput = document.getElementById('entryNotes');
-      if (entries[id]) { if (gInput) gInput.value = entries[id].guaranteeHrs || ''; if (otSelect) otSelect.value = entries[id].otType || ''; if (notesInput) notesInput.value = entries[id].notes || ''; }
+      if (entries[id] && notesInput) notesInput.value = entries[id].notes || '';
 
       function saveEntry() {
         if (e.skip) return;
-        entries[id] = { guaranteeHrs: gInput?.value || '', otType: otSelect?.value || '', notes: notesInput?.value || '' };
+        entries[id] = { notes: notesInput?.value || '' };
         localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries));
       }
 
@@ -224,8 +283,8 @@ def generate_web_html() -> str:
         if (confirm('Clear all progress and entries?')) { processed.clear(); entries = {}; localStorage.removeItem(STORAGE_KEY + '_done'); localStorage.removeItem(STORAGE_KEY + '_entries'); renderList(); renderEmp(); }
       };
       document.getElementById('exportBtn').onclick = () => {
-        const rows = [['employee_id','name','guarantee_hrs','ot_type','notes']];
-        EMP.filter(e => !e.skip && entries[e.employee_id]).forEach(e => { const x = entries[e.employee_id]; rows.push([e.employee_id, e.name, x.guaranteeHrs || '', x.otType || '', x.notes || '']); });
+        const rows = [['employee_id','name','notes']];
+        EMP.filter(e => !e.skip && entries[e.employee_id]).forEach(e => { const x = entries[e.employee_id]; rows.push([e.employee_id, e.name, x.notes || '']); });
         const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\\n');
         const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = 'dos_entries_' + new Date().toISOString().slice(0,10) + '.csv'; a.click();
       };
