@@ -104,9 +104,9 @@ def generate_web_html() -> str:
     <div class="upload-box">
       <h1>DOS Data Entry</h1>
       <p>Upload your DOS Excel file to get started.</p>
-      <form id="uploadForm">
+      <form id="uploadForm" onsubmit="return false;">
         <input type="file" name="file" accept=".xlsx,.xls" id="fileInput" required>
-        <button type="submit" class="nav-btn primary" id="uploadBtn">Upload & Load</button>
+        <button type="button" class="nav-btn primary" id="uploadBtn">Upload & Load</button>
       </form>
       <p id="uploadError" class="error"></p>
     </div>
@@ -156,12 +156,14 @@ def generate_web_html() -> str:
       renderEmp();
     }
 
-    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
+    document.getElementById('uploadBtn').addEventListener('click', async () => {
       const btn = document.getElementById('uploadBtn');
       const err = document.getElementById('uploadError');
       const input = document.getElementById('fileInput');
-      if (!input.files.length) return;
+      if (!input.files.length) {
+        err.textContent = 'Please select a file first.';
+        return;
+      }
       btn.disabled = true;
       err.textContent = '';
       const fd = new FormData();
