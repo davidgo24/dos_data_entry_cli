@@ -153,13 +153,27 @@
         const r = await fetch('/api/upload', { method: 'POST', body: fd });
         const j = await r.json().catch(() => ({}));
         if (!r.ok) {
-          err.textContent = j.error || 'Upload failed';
+          err.textContent = (j.error || 'Upload failed') + (r.status ? ' (' + r.status + ')' : '');
           btn.disabled = false;
           return;
         }
-        location.reload();
+        if (j.employees) {
+          window.DOS_DATA = j;
+          EMP = j.employees;
+          document.getElementById('uploadScreen').classList.remove('show');
+          document.getElementById('uploadScreen').style.display = 'none';
+          document.getElementById('app').classList.remove('hidden');
+          document.getElementById('app').style.display = 'flex';
+          input.value = '';
+          bindApp();
+          renderList();
+          renderEmp();
+        } else {
+          err.textContent = 'Unexpected response; try Start Fresh and upload again.';
+        }
+        btn.disabled = false;
       } catch (ex) {
-        err.textContent = ex.message || 'Upload failed';
+        err.textContent = (ex.message || 'Upload failed') + ' — check connection.';
         btn.disabled = false;
       }
     });

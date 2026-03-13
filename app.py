@@ -48,7 +48,8 @@ def api_upload():
         os.unlink(tmp.name)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    return jsonify({"ok": True, "employees": len(_dos_data["employees"])})
+    # Return full data so client doesn't need to refetch (avoids multi-instance / reload issues)
+    return jsonify(_dos_data)
 
 
 @app.route("/api/clear", methods=["POST"])
