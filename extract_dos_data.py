@@ -177,6 +177,10 @@ def main():
         print(f"File not found: {path}")
         return 1
     data = extract_dos_data(path, format=fmt)
+    # Prefer first date from filename (schedule date; ignore generated_at date)
+    m = re.search(r"\d{4}-\d{2}-\d{2}", Path(path).name)
+    if m:
+        data["date"] = m.group(0)
     out_dir = Path(__file__).resolve().parent
     out_json = out_dir / "dos_data.json"
     with open(out_json, "w") as f:

@@ -15,6 +15,7 @@
     .sidebar { width: 280px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
     .sidebar-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); flex-shrink: 0; }
     .sidebar-title { font-size: 0.9rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .sidebar-date { font-size: 0.8rem; color: var(--accent); margin-top: 0.25rem; }
     .filter-bar { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
     .filter-btn { padding: 0.4rem 0.75rem; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-size: 0.8rem; cursor: pointer; }
     .filter-btn:hover { color: var(--text); border-color: var(--text-muted); }
@@ -104,6 +105,7 @@
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="sidebar-title">DOS Data Entry</div>
+        <div class="sidebar-date" id="dosDate"></div>
         <div class="filter-bar">
           <button class="filter-btn active" data-filter="operators">Operators</button>
           <button class="filter-btn" data-filter="all">All</button>
@@ -127,6 +129,12 @@
     let processed = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY + '_done') || '[]'));
     let entries = JSON.parse(localStorage.getItem(STORAGE_KEY + '_entries') || '{}');
 
+    function updateScheduleDate() {
+      const el = document.getElementById('dosDate');
+      const d = window.DOS_DATA && window.DOS_DATA.date;
+      if (el && d) el.textContent = 'Schedule: ' + d;
+    }
+
     async function init() {
       const r = await fetch('/api/data');
       if (!r.ok) {
@@ -137,6 +145,7 @@
       const data = await r.json();
       window.DOS_DATA = data;
       EMP = data.employees;
+      updateScheduleDate();
       document.getElementById('uploadScreen').classList.remove('show');
       document.getElementById('uploadScreen').style.display = 'none';
       document.getElementById('app').classList.remove('hidden');
@@ -170,6 +179,7 @@
         if (j.employees) {
           window.DOS_DATA = j;
           EMP = j.employees;
+          updateScheduleDate();
           document.getElementById('uploadScreen').classList.remove('show');
           document.getElementById('uploadScreen').style.display = 'none';
           document.getElementById('app').classList.remove('hidden');

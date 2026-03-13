@@ -79,6 +79,11 @@ def generate_html(data: dict) -> str:
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }}
+    .sidebar-date {{
+      font-size: 0.8rem;
+      color: var(--accent);
+      margin-top: 0.25rem;
+    }}
     .filter-bar {{
       display: flex;
       gap: 0.5rem;
@@ -370,6 +375,7 @@ def generate_html(data: dict) -> str:
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="sidebar-title">DOS Data Entry</div>
+        <div class="sidebar-date" id="dosDate"></div>
         <div class="filter-bar">
           <button class="filter-btn active" data-filter="operators">Operators</button>
           <button class="filter-btn" data-filter="all">All</button>
@@ -393,6 +399,12 @@ def generate_html(data: dict) -> str:
     let selectedIdx = 0;
     let processed = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY + '_done') || '[]'));
     let entries = JSON.parse(localStorage.getItem(STORAGE_KEY + '_entries') || '{{}}');
+
+    function updateScheduleDate() {{
+      const el = document.getElementById('dosDate');
+      const d = window.DOS_DATA && window.DOS_DATA.date;
+      if (el && d) el.textContent = 'Schedule: ' + d;
+    }}
 
     function filtered() {{
       if (filter === 'operators') return EMP.filter(e => !e.skip);
@@ -621,6 +633,7 @@ def generate_html(data: dict) -> str:
       a.click();
     }});
 
+    updateScheduleDate();
     renderList();
     renderEmp();
   </script>

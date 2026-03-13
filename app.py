@@ -3,6 +3,7 @@ DOS Data Entry — Transit
 Flask app for Railway deployment.
 """
 import os
+import re
 import tempfile
 from pathlib import Path
 
@@ -47,6 +48,10 @@ def api_upload():
             file.save(tmp.name)
             _dos_data = extract_dos_data(tmp.name, format=format_hint)
         os.unlink(tmp.name)
+        # Prefer first date from filename (schedule date; ignore generated_at date)
+        m = re.search(r"\d{4}-\d{2}-\d{2}", file.filename or "")
+        if m:
+            _dos_data["date"] = m.group(0)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     # Return full data so client doesn't need to refetch (avoids multi-instance / reload issues)
