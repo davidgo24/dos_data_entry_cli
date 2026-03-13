@@ -118,7 +118,8 @@ def generate_web_html() -> str:
         <div class="filter-bar">
           <button class="filter-btn active" data-filter="operators">Operators</button>
           <button class="filter-btn" data-filter="all">All</button>
-          <button class="filter-btn" id="clearProgress" title="Clear progress">Clear</button>
+          <button class="filter-btn" id="clearProgress" title="Clear progress and notes (same data)">Clear</button>
+          <button class="filter-btn" id="startFresh" title="Clear everything and upload new file">Start Fresh</button>
           <button class="filter-btn" id="exportBtn" title="Export CSV">Export</button>
         </div>
       </div>
@@ -276,11 +277,20 @@ def generate_web_html() -> str:
 
     function bindApp() {
       document.querySelectorAll('.filter-btn').forEach(btn => {
-        if (btn.id === 'clearProgress') return;
+        if (btn.id === 'clearProgress' || btn.id === 'startFresh' || btn.id === 'exportBtn') return;
         btn.onclick = () => { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); filter = btn.dataset.filter; selectedIdx = 0; renderList(); renderEmp(); };
       });
       document.getElementById('clearProgress').onclick = () => {
-        if (confirm('Clear all progress and entries?')) { processed.clear(); entries = {}; localStorage.removeItem(STORAGE_KEY + '_done'); localStorage.removeItem(STORAGE_KEY + '_entries'); renderList(); renderEmp(); }
+        if (confirm('Clear progress and notes? (Keeps current data, use when starting a new day with same file)')) { processed.clear(); entries = {}; localStorage.removeItem(STORAGE_KEY + '_done'); localStorage.removeItem(STORAGE_KEY + '_entries'); renderList(); renderEmp(); }
+      };
+      document.getElementById('startFresh').onclick = async () => {
+        if (!confirm('Start completely fresh? This clears all data and progress. You\'ll need to upload a new Excel file.')) return;
+        try {
+          await fetch('/api/clear', { method: 'POST' });
+        } catch (e) {}
+        processed.clear(); entries = {};
+        localStorage.removeItem(STORAGE_KEY + '_done'); localStorage.removeItem(STORAGE_KEY + '_entries');
+        location.reload();
       };
       document.getElementById('exportBtn').onclick = () => {
         const rows = [['employee_id','name','notes']];

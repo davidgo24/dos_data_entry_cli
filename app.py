@@ -51,6 +51,14 @@ def api_upload():
     return jsonify({"ok": True, "employees": len(_dos_data["employees"])})
 
 
+@app.route("/api/clear", methods=["POST"])
+def api_clear():
+    """Clear server-side DOS data (resets to upload screen on reload)."""
+    global _dos_data
+    _dos_data = None
+    return jsonify({"ok": True})
+
+
 @app.route("/api/health")
 def health():
     return jsonify({"status": "ok"})
