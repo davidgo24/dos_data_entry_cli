@@ -40,6 +40,7 @@ def generate_html(data: dict) -> str:
       --text-muted: #8b8b96;
       --accent: #22c55e;
       --accent-dim: #16a34a;
+      --highlight: #38bdf8;
       --warn: #f59e0b;
       --skip: #6b7280;
       --radius: 10px;
@@ -88,6 +89,7 @@ def generate_html(data: dict) -> str:
       display: flex;
       gap: 0.5rem;
       margin-top: 0.75rem;
+      flex-wrap: wrap;
     }}
     .filter-btn {{
       padding: 0.4rem 0.75rem;
@@ -107,6 +109,7 @@ def generate_html(data: dict) -> str:
     }}
     .emp-list {{
       flex: 1;
+      min-width: 0;
       overflow-y: auto;
       padding: 0.5rem;
     }}
@@ -120,7 +123,11 @@ def generate_html(data: dict) -> str:
       gap: 0.5rem;
     }}
     .emp-item:hover {{ background: var(--surface2); }}
-    .emp-item.active {{ background: var(--surface2); border-left: 3px solid var(--accent); }}
+    .emp-item:focus-visible {{ outline: 2px solid var(--accent); outline-offset: 2px; }}
+    .emp-item.active:focus-visible {{ outline-color: var(--highlight); }}
+    .emp-item.active {{ background: var(--surface2); border-left: 3px solid var(--highlight); }}
+    .emp-item.active > div > div:first-child {{ color: var(--highlight); font-weight: 600; }}
+    .emp-item.active .emp-id {{ color: var(--highlight); }}
     .emp-item.skip {{ opacity: 0.6; }}
     .emp-item .check {{
       width: 18px;
@@ -137,12 +144,14 @@ def generate_html(data: dict) -> str:
     .emp-item.done .check {{ background: var(--accent); border-color: var(--accent); color: var(--bg); }}
     .main {{
       flex: 1;
+      min-width: 0;
       overflow-y: auto;
       padding: 2rem 2.5rem;
     }}
     .main-inner {{
       max-width: 900px;
       margin: 0 auto;
+      min-width: 0;
     }}
     .emp-card {{
       background: var(--surface);
@@ -164,7 +173,7 @@ def generate_html(data: dict) -> str:
     .emp-name {{
       font-size: 1.5rem;
       font-weight: 700;
-      color: var(--text);
+      color: var(--highlight);
     }}
     .emp-id {{
       font-family: 'JetBrains Mono', monospace;
@@ -173,8 +182,8 @@ def generate_html(data: dict) -> str:
     }}
     .emp-header .emp-id {{
       font-size: 1rem;
-      color: var(--accent);
-      background: rgba(34, 197, 94, 0.15);
+      color: var(--highlight);
+      background: rgba(56, 189, 248, 0.15);
       padding: 0.25rem 0.6rem;
       border-radius: 6px;
       display: inline-block;
@@ -321,7 +330,7 @@ def generate_html(data: dict) -> str:
       font-family: inherit;
       font-size: 0.9rem;
       flex: 1;
-      min-width: 200px;
+      min-width: 0;
     }}
     .entry-row input:focus {{
       outline: none;
@@ -331,6 +340,7 @@ def generate_html(data: dict) -> str:
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: wrap;
       gap: 1rem;
       margin-top: 2rem;
       padding-top: 1.5rem;
@@ -368,6 +378,24 @@ def generate_html(data: dict) -> str:
       font-size: 1.1rem;
     }}
     .empty-state p {{ margin: 0.5rem 0; }}
+    @media (max-width: 1100px) {{
+      .sidebar {{ width: 240px; }}
+      .main {{ padding: 1.25rem 1.5rem; }}
+      .emp-card {{ padding: 1.5rem; }}
+      .run-times {{ grid-template-columns: 1fr; }}
+    }}
+    @media (max-width: 900px) {{
+      .sidebar {{ width: 220px; }}
+      .sidebar-header {{ padding: 0.75rem 1rem; }}
+      .main {{ padding: 1rem; }}
+      .emp-card {{ padding: 1.25rem; }}
+      .emp-name {{ font-size: 1.25rem; }}
+    }}
+    @media (max-width: 700px) {{
+      .sidebar {{ width: 200px; }}
+      .main {{ padding: 0.75rem 1rem; }}
+      .emp-card {{ padding: 1rem; }}
+    }}
   </style>
 </head>
 <body>
@@ -416,7 +444,7 @@ def generate_html(data: dict) -> str:
       const F = filtered();
       list.innerHTML = F.map((e, i) => `
         <div class="emp-item ${{e.skip ? 'skip' : ''}} ${{processed.has(e.employee_id) ? 'done' : ''}} ${{i === selectedIdx ? 'active' : ''}}"
-             data-idx="${{i}}" data-id="${{esc(e.employee_id)}}">
+             data-idx="${{i}}" data-id="${{esc(e.employee_id)}}" tabindex="0" role="button">
           <span class="check">${{processed.has(e.employee_id) ? '✓' : ''}}</span>
           <div>
             <div>${{esc(e.name)}}</div>
@@ -426,7 +454,10 @@ def generate_html(data: dict) -> str:
       `).join('');
       list.querySelectorAll('.emp-item').forEach(el => {{
         el.addEventListener('click', () => {{ selectEmp(parseInt(el.dataset.idx)); }});
+        el.addEventListener('keydown', (ev) => {{ if (ev.key === 'Enter' || ev.key === ' ') {{ ev.preventDefault(); selectEmp(parseInt(el.dataset.idx)); }} }});
       }});
+      const activeItem = list.querySelector('.emp-item.active');
+      if (activeItem) activeItem.focus();
     }}
 
     function formatHrs(v) {{

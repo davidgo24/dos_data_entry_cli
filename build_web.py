@@ -25,7 +25,7 @@ def generate_web_html() -> str:
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    :root { --bg: #0f0f12; --surface: #18181c; --surface2: #232329; --border: #2e2e35; --text: #e8e8ec; --text-muted: #8b8b96; --accent: #22c55e; --accent-dim: #16a34a; --warn: #f59e0b; --skip: #6b7280; --radius: 10px; }
+    :root { --bg: #0f0f12; --surface: #18181c; --surface2: #232329; --border: #2e2e35; --text: #e8e8ec; --text-muted: #8b8b96; --accent: #22c55e; --accent-dim: #16a34a; --highlight: #38bdf8; --warn: #f59e0b; --skip: #6b7280; --radius: 10px; }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.5; }
     .app { display: flex; height: 100vh; overflow: hidden; }
@@ -37,20 +37,24 @@ def generate_web_html() -> str:
     .filter-btn { padding: 0.4rem 0.75rem; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-size: 0.8rem; cursor: pointer; }
     .filter-btn:hover { color: var(--text); border-color: var(--text-muted); }
     .filter-btn.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
-    .emp-list { flex: 1; overflow-y: auto; padding: 0.5rem; }
+    .emp-list { flex: 1; min-width: 0; overflow-y: auto; padding: 0.5rem; }
     .emp-item { padding: 0.6rem 0.8rem; border-radius: var(--radius); cursor: pointer; display: flex; align-items: center; gap: 0.5rem; }
     .emp-item:hover { background: var(--surface2); }
-    .emp-item.active { background: var(--surface2); border-left: 3px solid var(--accent); }
+    .emp-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .emp-item.active:focus-visible { outline-color: var(--highlight); }
+    .emp-item.active { background: var(--surface2); border-left: 3px solid var(--highlight); }
+    .emp-item.active > div > div:first-child { color: var(--highlight); font-weight: 600; }
+    .emp-item.active .emp-id { color: var(--highlight); }
     .emp-item.skip { opacity: 0.6; }
     .emp-item .check { width: 18px; height: 18px; border-radius: 4px; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--accent); }
     .emp-item.done .check { background: var(--accent); border-color: var(--accent); color: var(--bg); }
-    .main { flex: 1; overflow-y: auto; padding: 2rem 2.5rem; }
-    .main-inner { max-width: 900px; margin: 0 auto; }
+    .main { flex: 1; min-width: 0; overflow-y: auto; padding: 2rem 2.5rem; }
+    .main-inner { max-width: 900px; margin: 0 auto; min-width: 0; }
     .emp-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; }
     .emp-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
-    .emp-name { font-size: 1.5rem; font-weight: 700; }
+    .emp-name { font-size: 1.5rem; font-weight: 700; color: var(--highlight); }
     .emp-id { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text-muted); }
-    .emp-header .emp-id { font-size: 1rem; color: var(--accent); background: rgba(34, 197, 94, 0.15); padding: 0.25rem 0.6rem; border-radius: 6px; display: inline-block; margin-top: 0.35rem; }
+    .emp-header .emp-id { font-size: 1rem; color: var(--highlight); background: rgba(56, 189, 248, 0.15); padding: 0.25rem 0.6rem; border-radius: 6px; display: inline-block; margin-top: 0.35rem; }
     .badge { padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
     .badge.operator { background: rgba(34, 197, 94, 0.2); color: var(--accent); }
     .badge.supervisor { background: rgba(107, 114, 128, 0.3); color: var(--text-muted); }
@@ -83,7 +87,7 @@ def generate_web_html() -> str:
     .entry-section h4 { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
     .entry-row { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
     .entry-row label { font-size: 0.9rem; color: var(--text-muted); min-width: 80px; }
-    .entry-row input { padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 0.9rem; flex: 1; min-width: 200px; }
+    .entry-row input { padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 0.9rem; flex: 1; min-width: 0; }
     .nav-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
     .nav-btn { padding: 0.6rem 1.25rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 0.9rem; font-weight: 500; cursor: pointer; }
     .nav-btn:hover { background: var(--surface2); }
@@ -98,6 +102,25 @@ def generate_web_html() -> str:
     .upload-box input[type="file"] { margin-bottom: 1rem; }
     .upload-box .error { color: #ef4444; font-size: 0.9rem; margin-top: 0.5rem; }
     .app.hidden { display: none; }
+    @media (max-width: 1100px) {
+      .sidebar { width: 240px; }
+      .main { padding: 1.25rem 1.5rem; }
+      .emp-card { padding: 1.5rem; }
+      .run-times { grid-template-columns: 1fr; }
+      .nav-bar { flex-wrap: wrap; }
+    }
+    @media (max-width: 900px) {
+      .sidebar { width: 220px; }
+      .sidebar-header { padding: 0.75rem 1rem; }
+      .main { padding: 1rem; }
+      .emp-card { padding: 1.25rem; }
+      .emp-name { font-size: 1.25rem; }
+    }
+    @media (max-width: 700px) {
+      .sidebar { width: 200px; }
+      .main { padding: 0.75rem 1rem; }
+      .emp-card { padding: 1rem; }
+    }
   </style>
 </head>
 <body>
@@ -263,8 +286,13 @@ def generate_web_html() -> str:
     function renderList() {
       const list = document.getElementById('empList');
       const F = filtered();
-      list.innerHTML = F.map((e, i) => `<div class="emp-item ${e.skip ? 'skip' : ''} ${processed.has(e.employee_id) ? 'done' : ''} ${i === selectedIdx ? 'active' : ''}" data-idx="${i}" data-id="${esc(e.employee_id)}"><span class="check">${processed.has(e.employee_id) ? '✓' : ''}</span><div><div>${esc(e.name)}</div><div class="emp-id" style="font-size:0.75rem;margin-top:2px">ID ${esc(e.employee_id)}${e.skip ? ' · Skip' : ''}</div></div></div>`).join('');
-      list.querySelectorAll('.emp-item').forEach(el => el.addEventListener('click', () => { selectEmp(parseInt(el.dataset.idx)); }));
+      list.innerHTML = F.map((e, i) => `<div class="emp-item ${e.skip ? 'skip' : ''} ${processed.has(e.employee_id) ? 'done' : ''} ${i === selectedIdx ? 'active' : ''}" data-idx="${i}" data-id="${esc(e.employee_id)}" tabindex="0" role="button"><span class="check">${processed.has(e.employee_id) ? '✓' : ''}</span><div><div>${esc(e.name)}</div><div class="emp-id" style="font-size:0.75rem;margin-top:2px">ID ${esc(e.employee_id)}${e.skip ? ' · Skip' : ''}</div></div></div>`).join('');
+      list.querySelectorAll('.emp-item').forEach(el => {
+        el.addEventListener('click', () => { selectEmp(parseInt(el.dataset.idx)); });
+        el.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); selectEmp(parseInt(el.dataset.idx)); } });
+      });
+      const activeItem = list.querySelector('.emp-item.active');
+      if (activeItem) activeItem.focus();
     }
 
     function renderEmp() {
