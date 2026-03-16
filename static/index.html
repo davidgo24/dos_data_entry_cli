@@ -73,7 +73,9 @@
     .badge.operator { background: rgba(74, 222, 128, 0.2); color: var(--accent); }
     .badge.supervisor { background: rgba(107, 114, 128, 0.25); color: var(--text-muted); }
     .badge.cte { background: rgba(167, 139, 250, 0.2); color: var(--cte); }
-    .run-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 0.75rem; }
+    .run-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 0.75rem; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+    .run-card.run-card-included { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+    .run-card.run-card-included:hover { box-shadow: 0 0 0 1px var(--accent-dim); }
     .run-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; }
     .run-paddle { font-weight: 600; color: var(--accent); font-size: 1rem; }
     .run-block { color: var(--text-muted); font-size: 0.85rem; }
@@ -110,6 +112,13 @@
     .run-select-radio { display: flex; gap: 0.5rem; align-items: center; }
     .run-select-radio label { font-size: 0.8rem; color: var(--text); font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 0.25rem; }
     .run-select.voided { opacity: 0.6; }
+    .run-select-hint { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem; }
+    .run-pt-cards { display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; }
+    .run-pt-card { flex: 1; min-width: 120px; padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border); background: rgba(0,0,0,0.2); cursor: pointer; font-size: 0.85rem; transition: border-color 0.15s, box-shadow 0.15s; }
+    .run-pt-card:hover { border-color: var(--text-muted); }
+    .run-pt-card.selected { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+    .run-pt-card-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.25rem; }
+    .run-pt-card-time { font-weight: 500; }
     .nav-mini { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
     .nav-mini .progress { font-size: 0.8rem; color: var(--text-muted); }
     .nav-mini .btns { display: flex; gap: 0.5rem; }
@@ -508,15 +517,26 @@
         const laborCode = sel.laborCode || '';
         const isLeaveRun = /FMLA|SICK|VAC|PTO|LEAVE|LWP/i.test(r.paddle || '');
         const suggestLabor = (r.paddle || '').toUpperCase().includes('FMLA') ? '2024' : '';
+        const ptLabel = 'Use for export';
+        const plannedTimes = (r.planned_start && r.planned_end) ? `${esc(r.planned_start)} – ${esc(r.planned_end)}` : '—';
+        const actualTimes = (r.actual_start && r.actual_end) ? `${esc(r.actual_start)} – ${esc(r.actual_end)}` : '—';
         const runSelectHtml = `<div class="run-select ${includeRun ? '' : 'voided'}" data-paddle="${esc(r.paddle)}">
-          <label class="run-select-include" style="cursor:pointer;display:flex;align-items:center;gap:0.5rem;font-size:0.9rem">
-            <input type="checkbox" class="run-include-cb" data-paddle="${esc(r.paddle)}" ${includeRun ? 'checked' : ''}>
-            <span class="run-select-label">Include for export</span>
-          </label>
-          ${includeRun ? `<div class="run-select-radio" style="margin-top:0.4rem"><label><input type="radio" name="run-pt-${esc(e.employee_id)}-${esc(r.paddle)}" value="planned" ${plannedOrActual === 'planned' ? 'checked' : ''}> Planned</label><label><input type="radio" name="run-pt-${esc(e.employee_id)}-${esc(r.paddle)}" value="actual" ${plannedOrActual === 'actual' ? 'checked' : ''}> Actual</label></div>${isLeaveRun ? `<label>Labor:</label><input type="text" class="run-labor-input" data-paddle="${esc(r.paddle)}" placeholder="${suggestLabor || 'e.g. 2024'}" value="${esc(laborCode)}" maxlength="10" style="width:70px" title="Leave code">` : `<span class="run-select-label" style="font-size:0.7rem;opacity:0.8">→ 1020,1000,1013,3002 from segments</span>`}` : ''}
+          ${includeRun ? `<span class="run-select-label">${ptLabel}</span>
+          <div class="run-pt-cards">
+            <div class="run-pt-card ${plannedOrActual === 'planned' ? 'selected' : ''}" data-pt="planned" data-paddle="${esc(r.paddle)}" tabindex="0" role="button">
+              <div class="run-pt-card-label">Planned</div>
+              <div class="run-pt-card-time">${plannedTimes}</div>
+              <div class="run-pt-card-hrs" style="font-size:0.75rem;color:var(--text-muted)">${formatHrs(r.planned_hrs)} hrs</div>
+            </div>
+            <div class="run-pt-card ${plannedOrActual === 'actual' ? 'selected' : ''}" data-pt="actual" data-paddle="${esc(r.paddle)}" tabindex="0" role="button">
+              <div class="run-pt-card-label">Actual</div>
+              <div class="run-pt-card-time">${actualTimes}</div>
+              <div class="run-pt-card-hrs" style="font-size:0.75rem;color:var(--text-muted)">${r.actual_hrs != null ? formatHrs(r.actual_hrs) + ' hrs' : '—'}</div>
+            </div>
+          </div>${isLeaveRun ? `<label style="display:block;margin-top:0.5rem;font-size:0.75rem">Labor:</label><input type="text" class="run-labor-input" data-paddle="${esc(r.paddle)}" placeholder="${suggestLabor || 'e.g. 2024'}" value="${esc(laborCode)}" maxlength="10" style="width:70px" title="Leave code">` : `<span class="run-select-label" style="font-size:0.7rem;opacity:0.8;margin-top:0.35rem;display:block">→ 1020,1000,1013,3002 from segments</span>`}` : '<span class="run-select-hint">Click card to include</span>'}
         </div>`;
 
-        return `<div class="run-card"><div class="run-header"><span class="run-paddle">${esc(r.paddle)}</span>${r.block ? '<span class="run-block">Block ' + esc(r.block) + '</span>' : ''}</div><div class="run-times"><div class="run-group"><div class="run-group-label">Planned</div><div class="run-group-time">${esc(r.planned_start)} – ${esc(r.planned_end)}</div><div class="run-group-hrs hrs">${formatHrs(r.planned_hrs)} hrs</div></div><div class="run-group"><div class="run-group-label">Actual</div>${actualHtml}</div></div>${r.vehicle ? '<div style="margin-top:0.4rem;font-size:0.8rem;color:var(--text-muted)">Vehicle: ' + esc(r.vehicle) + '</div>' : ''}${overrideHtml}${runSelectHtml}${noteBanners.join('')}</div>`;
+        return `<div class="run-card ${includeRun ? 'run-card-included' : ''}" data-paddle="${esc(r.paddle)}" data-include="${includeRun ? 'true' : 'false'}" tabindex="0" role="button"><div class="run-header"><span class="run-paddle">${esc(r.paddle)}</span>${r.block ? '<span class="run-block">Block ' + esc(r.block) + '</span>' : ''}</div><div class="run-times"><div class="run-group"><div class="run-group-label">Planned</div><div class="run-group-time">${esc(r.planned_start)} – ${esc(r.planned_end)}</div><div class="run-group-hrs hrs">${formatHrs(r.planned_hrs)} hrs</div></div><div class="run-group"><div class="run-group-label">Actual</div>${actualHtml}</div></div>${r.vehicle ? '<div style="margin-top:0.4rem;font-size:0.8rem;color:var(--text-muted)">Vehicle: ' + esc(r.vehicle) + '</div>' : ''}${overrideHtml}${runSelectHtml}${noteBanners.join('')}</div>`;
       }).join('');
 
       const badgeClass = e.skip ? 'supervisor' : (cteIds.has(String(e.employee_id)) ? 'cte' : 'operator');
@@ -537,13 +557,13 @@
           ro[p][sel.dataset.field] = sel.value;
         });
         const rs = {};
-        main.querySelectorAll('.run-select').forEach(el => {
-          const p = el.dataset.paddle;
-          const includeCb = el.querySelector('.run-include-cb');
-          const use = includeCb && includeCb.checked;
-          const ptRadio = el.querySelector('input[value="planned"]');
-          const plannedOrActual = ptRadio && ptRadio.checked ? 'planned' : 'actual';
-          const laborInput = el.querySelector('.run-labor-input');
+        main.querySelectorAll('.run-card[data-paddle]').forEach(card => {
+          const p = card.dataset.paddle;
+          const use = card.dataset.include === 'true';
+          const runSelect = card.querySelector('.run-select');
+          const ptCard = runSelect && runSelect.querySelector('.run-pt-card.selected');
+          const plannedOrActual = (ptCard && ptCard.dataset.pt) || 'actual';
+          const laborInput = runSelect && runSelect.querySelector('.run-labor-input');
           rs[p] = { use, plannedOrActual, laborCode: (use && laborInput ? laborInput.value.trim() : '') || '' };
         });
         const hasOverrides = Object.keys(ro).length > 0;
@@ -562,12 +582,46 @@
       main.querySelectorAll('.run-ot-select').forEach(sel => {
         sel.addEventListener('change', () => { saveEntry(); renderEmp(); });
       });
-      main.querySelectorAll('.run-select input').forEach(inp => {
-        inp.addEventListener('change', () => { saveEntry(); renderEmp(); });
+      main.querySelectorAll('.run-pt-card').forEach(ptCard => {
+        ptCard.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          const paddle = ptCard.dataset.paddle;
+          const pt = ptCard.dataset.pt;
+          const card = ptCard.closest('.run-card');
+          if (!card || card.dataset.include !== 'true') return;
+          const rs = entries[id]?.runSelections || {};
+          rs[paddle] = rs[paddle] || {};
+          rs[paddle].plannedOrActual = pt;
+          if (!entries[id]) entries[id] = { notes: '', runOverrides: {}, runSelections: {} };
+          entries[id].runSelections = rs;
+          localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries));
+          renderEmp();
+        });
+        ptCard.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); ev.stopPropagation(); ptCard.click(); }
+        });
       });
       main.querySelectorAll('.run-labor-input').forEach(inp => {
         inp.addEventListener('input', () => saveEntry());
         inp.addEventListener('blur', () => saveEntry());
+      });
+      main.querySelectorAll('.run-card[data-paddle]').forEach(card => {
+        card.addEventListener('click', (ev) => {
+          if (ev.target.closest('select, input, button') || ev.target.closest('label')) return;
+          const p = card.dataset.paddle;
+          const nextInclude = card.dataset.include !== 'true';
+          const rs = entries[id]?.runSelections || {};
+          rs[p] = rs[p] || {};
+          rs[p].use = nextInclude;
+          if (!entries[id]) entries[id] = { notes: '', runOverrides: {}, runSelections: {} };
+          entries[id].runSelections = rs;
+          localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries));
+          renderEmp();
+        });
+        card.addEventListener('keydown', (ev) => {
+          if (ev.target.closest('select, input, button') || ev.target.closest('label')) return;
+          if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); card.click(); }
+        });
       });
     }
 
