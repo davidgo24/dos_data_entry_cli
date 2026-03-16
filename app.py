@@ -15,6 +15,9 @@ from extract_dos_data import extract_dos_data
 app = Flask(__name__, static_folder="static", static_url_path="")
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16MB
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-change-in-production")
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+# SESSION_COOKIE_SECURE: set in production via env; Railway serves HTTPS
 
 # Per-session DOS data: { session_id: { employees, date } }
 _dos_data: dict[str, dict] = {}
@@ -87,6 +90,10 @@ def health():
 _cte_session: dict[str, list[str]] = {}  # uid -> list of employee_ids
 CONFIG_CTE_PATH = Path(__file__).resolve().parent / "config_cte.json"
 
+# Supervisors list: employee IDs excluded from Op view and export
+_supervisors_session: dict[str, list[str]] = {}
+CONFIG_SUPERVISORS_PATH = Path(__file__).resolve().parent / "config_supervisors.json"
+
 
 @app.route("/api/cte", methods=["GET"])
 def api_cte_get():
@@ -115,6 +122,37 @@ def api_cte_post():
         ids = [str(x).strip() for x in ids if x]
         _cte_session[uid] = list(set(ids))
         return jsonify({"ok": True, "count": len(_cte_session[uid])})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@app.route("/api/supervisors", methods=["GET"])
+def api_supervisors_get():
+    """Return supervisors list (from config file + session)."""
+    uid = _uid()
+    ids = set()
+    if CONFIG_SUPERVISORS_PATH.exists():
+        try:
+            import json
+            with open(CONFIG_SUPERVISORS_PATH, encoding="utf-8") as f:
+                data = json.load(f)
+            ids.update(str(x) for x in (data if isinstance(data, list) else data.get("ids", data.get("employee_ids", []))))
+        except Exception:
+            pass
+    ids.update(_supervisors_session.get(uid, []))
+    return jsonify({"ids": list(ids)})
+
+
+@app.route("/api/supervisors", methods=["POST"])
+def api_supervisors_post():
+    """Upload supervisors list (employee IDs), merge with session."""
+    uid = _uid()
+    try:
+        data = request.get_json(force=True, silent=True) or {}
+        ids = data.get("ids", data.get("employee_ids", data if isinstance(data, list) else []))
+        ids = [str(x).strip() for x in ids if x]
+        _supervisors_session[uid] = list(set(ids))
+        return jsonify({"ok": True, "count": len(_supervisors_session[uid])})
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 

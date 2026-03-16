@@ -59,10 +59,12 @@
     .emp-item.active { background: var(--surface2); border-left: 3px solid var(--highlight); }
     .emp-item.active .emp-name { color: var(--highlight); }
     .emp-item.skip { opacity: 0.6; }
-    .emp-item .check { width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--accent); }
+    .emp-item .check { width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--accent); cursor: pointer; }
     .emp-item.done .check { background: var(--accent); border-color: var(--accent); color: var(--bg); }
     .emp-name { font-weight: 500; }
     .emp-id { font-size: 0.7rem; color: var(--text-muted); margin-top: 1px; }
+    .emp-item .list-badge { padding: 0.1rem 0.35rem; border-radius: 3px; font-size: 0.6rem; font-weight: 600; text-transform: uppercase; flex-shrink: 0; margin-left: auto; }
+    .emp-item .list-badge.cte { background: rgba(167, 139, 250, 0.35); color: var(--cte); border: 1px solid var(--cte); }
     .main { flex: 1; min-width: 0; overflow-y: auto; padding: 1.25rem 1.5rem; }
     .main-inner { max-width: 860px; margin: 0 auto; min-width: 0; }
     .emp-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; }
@@ -72,7 +74,7 @@
     .badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; }
     .badge.operator { background: rgba(74, 222, 128, 0.2); color: var(--accent); }
     .badge.supervisor { background: rgba(107, 114, 128, 0.25); color: var(--text-muted); }
-    .badge.cte { background: rgba(167, 139, 250, 0.2); color: var(--cte); }
+    .badge.cte { background: rgba(167, 139, 250, 0.35); color: var(--cte); border: 1px solid var(--cte); font-size: 0.75rem; }
     .run-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 0.75rem; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
     .run-card.run-card-included { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
     .run-card.run-card-included:hover { box-shadow: 0 0 0 1px var(--accent-dim); }
@@ -113,6 +115,15 @@
     .run-select-radio label { font-size: 0.8rem; color: var(--text); font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 0.25rem; }
     .run-select.voided { opacity: 0.6; }
     .run-select-hint { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem; }
+    .dayoff-link { font-size: 0.75rem; color: var(--text-muted); cursor: pointer; margin-top: 0.4rem; }
+    .dayoff-link:hover { color: var(--warn); }
+    .dayoff-panel { margin-top: 0.5rem; padding: 0.6rem; background: rgba(0,0,0,0.25); border-radius: 6px; border: 1px solid var(--border); }
+    .dayoff-options { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-top: 0.4rem; }
+    .dayoff-options input { width: 50px; padding: 0.25rem 0.4rem; font-size: 0.8rem; }
+    .extratail-link { font-size: 0.75rem; color: var(--text-muted); cursor: pointer; margin-top: 0.4rem; }
+    .extratail-link:hover { color: var(--warn); }
+    .extratail-panel { margin-top: 0.5rem; padding: 0.6rem; background: rgba(0,0,0,0.25); border-radius: 6px; border: 1px solid var(--border); }
+    .extratail-options { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-top: 0.4rem; }
     .run-pt-cards { display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap; }
     .run-pt-card { flex: 1; min-width: 120px; padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border); background: rgba(0,0,0,0.2); cursor: pointer; font-size: 0.85rem; transition: border-color 0.15s, box-shadow 0.15s; }
     .run-pt-card:hover { border-color: var(--text-muted); }
@@ -183,7 +194,7 @@
         </div>
         <button type="button" class="nav-btn primary" id="uploadBtn">Upload & Load</button>
       </form>
-      <p style="margin-top:1rem;font-size:0.8rem;"><a href="#" id="uploadCteLink" style="color:var(--accent);">Manage CTE list</a> (add before or after loading)</p>
+      <p style="margin-top:1rem;font-size:0.8rem;"><a href="#" id="uploadCteLink" style="color:var(--accent);">Manage CTE list</a> · <a href="#" id="uploadSupervisorsLink" style="color:var(--accent);">Manage Supervisors list</a> (add before or after loading)</p>
       <p id="uploadError" class="error"></p>
     </div>
   </div>
@@ -193,8 +204,9 @@
         <div class="view-tabs">
           <button class="view-tab active" data-view="data" id="tabData">Data Entry</button>
           <button class="view-tab" data-view="cte" id="tabCte">CTE List</button>
+          <button class="view-tab" data-view="supervisors" id="tabSupervisors">Supervisors</button>
         </div>
-        <span class="cmd-hints"><kbd>n</kbd>next <kbd>p</kbd>prev <kbd>d</kbd>done <kbd>e</kbd>export <kbd>c</kbd>clear <kbd>s</kbd>fresh <kbd>?</kbd>help</span>
+        <span class="cmd-hints"><kbd>n</kbd>next <kbd>p</kbd>prev <kbd>d</kbd>done <kbd>Shift+d</kbd>undo done <kbd>e</kbd>export all <kbd>Shift+e</kbd>done only <kbd>c</kbd>clear <kbd>s</kbd>fresh <kbd>?</kbd>help</span>
         <div class="cmd-input-wrap"><input type="text" class="cmd-input" id="cmdInput" placeholder="type command..." autocomplete="off"></div>
       </div>
     </div>
@@ -224,6 +236,17 @@
         <h2>CTE employees (OT as 3002)</h2>
         <div id="cteTableWrap"></div>
       </div>
+      <div class="main cte-view" id="supervisorsView" style="display:none">
+        <div class="cte-actions">
+          <div class="cte-add">
+            <input type="text" id="supervisorsAddId" placeholder="Employee ID" maxlength="20">
+            <button type="button" class="primary" id="supervisorsAddBtn">Add</button>
+          </div>
+          <button type="button" class="nav-btn" id="supervisorsImportBtn">Import from config</button>
+        </div>
+        <h2>Supervisors (excluded from Op view & export)</h2>
+        <div id="supervisorsTableWrap"></div>
+      </div>
     </div>
     <div class="status-line" id="statusLine">
       <div class="status-line-inner" id="statusText">—</div>
@@ -246,6 +269,23 @@
       <div id="cteModalTableWrap"></div>
     </div>
   </div>
+  <div class="shortcut-overlay cte-modal" id="supervisorsModal" style="display:none" tabindex="-1">
+    <div class="shortcut-box" style="max-width:520px;width:100%;max-height:85vh;overflow:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+        <h3 style="margin:0">Supervisors List</h3>
+        <button type="button" class="nav-btn" id="supervisorsModalClose">Close</button>
+      </div>
+      <div class="cte-actions" style="margin-bottom:1rem">
+        <div class="cte-add">
+          <input type="text" id="supervisorsModalAddId" placeholder="Employee ID (or paste multiple)" maxlength="500" style="width:200px">
+          <button type="button" class="primary" id="supervisorsModalAddBtn">Add</button>
+        </div>
+        <button type="button" class="nav-btn" id="supervisorsModalImportBtn">Import from config</button>
+      </div>
+      <p class="cte-empty" style="margin:0 0 0.5rem;font-size:0.8rem">Excluded from Op view and export:</p>
+      <div id="supervisorsModalTableWrap"></div>
+    </div>
+  </div>
   <div class="shortcut-overlay" id="shortcutOverlay" tabindex="-1">
     <div class="shortcut-box">
       <h3>Keyboard shortcuts</h3>
@@ -253,7 +293,9 @@
         <tr><td><kbd>n</kbd> j →</td><td>Next employee</td></tr>
         <tr><td><kbd>p</kbd> k ←</td><td>Previous employee</td></tr>
         <tr><td><kbd>d</kbd></td><td>Mark done & next</td></tr>
-        <tr><td><kbd>e</kbd></td><td>Export CSV</td></tr>
+        <tr><td><kbd>Shift+d</kbd></td><td>Undo done (remove from done list)</td></tr>
+        <tr><td><kbd>e</kbd></td><td>Export all</td></tr>
+        <tr><td><kbd>Shift+e</kbd></td><td>Export done only</td></tr>
         <tr><td><kbd>c</kbd></td><td>Clear progress</td></tr>
         <tr><td><kbd>s</kbd></td><td>Start fresh (reload)</td></tr>
         <tr><td><kbd>?</kbd></td><td>This help</td></tr>
@@ -264,6 +306,7 @@
   <script>
     const STORAGE_KEY = 'dos_data_entry';
     const CTE_STORAGE_KEY = 'dos_cte_list';
+    const SUPERVISORS_STORAGE_KEY = 'dos_supervisors_list';
     function esc(v) { if (v == null || v === undefined) return ''; return String(v).replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$\{/g,'\\${'); }
     let EMP = [];
     let filter = 'operators';
@@ -271,6 +314,7 @@
     let processed = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY + '_done') || '[]'));
     let entries = JSON.parse(localStorage.getItem(STORAGE_KEY + '_entries') || '{}');
     let cteIds = new Set(JSON.parse(localStorage.getItem(CTE_STORAGE_KEY) || '[]'));
+    let supervisorIds = new Set(JSON.parse(localStorage.getItem(SUPERVISORS_STORAGE_KEY) || '[]'));
     let currentView = 'data';
     let lastStatus = '';
     let statusTimeout = null;
@@ -293,9 +337,18 @@
       localStorage.setItem(CTE_STORAGE_KEY, JSON.stringify([...cteIds]));
     }
 
+    function saveSupervisorsToStorage() {
+      localStorage.setItem(SUPERVISORS_STORAGE_KEY, JSON.stringify([...supervisorIds]));
+    }
+
     async function loadCte() {
       const stored = JSON.parse(localStorage.getItem(CTE_STORAGE_KEY) || '[]');
       cteIds = new Set(stored.map(String));
+    }
+
+    async function loadSupervisors() {
+      const stored = JSON.parse(localStorage.getItem(SUPERVISORS_STORAGE_KEY) || '[]');
+      supervisorIds = new Set(stored.map(String));
     }
 
     async function importCteFromConfig() {
@@ -312,6 +365,20 @@
       }
     }
 
+    async function importSupervisorsFromConfig() {
+      try {
+        const r = await fetch('/api/supervisors');
+        if (!r.ok) return;
+        const j = await r.json();
+        (j.ids || []).forEach(id => supervisorIds.add(String(id)));
+        saveSupervisorsToStorage();
+        renderSupervisorsView();
+        setStatus('Imported supervisors from config', false);
+      } catch (_) {
+        setStatus('Import failed', false);
+      }
+    }
+
     async function init() {
       const r = await fetch('/api/data');
       if (!r.ok) {
@@ -323,6 +390,7 @@
       window.DOS_DATA = data;
       EMP = data.employees;
       await loadCte();
+      await loadSupervisors();
       updateScheduleDate();
       document.getElementById('uploadScreen').classList.remove('show');
       document.getElementById('uploadScreen').style.display = 'none';
@@ -355,6 +423,7 @@
           window.DOS_DATA = j;
           EMP = j.employees;
           await loadCte();
+          await loadSupervisors();
           updateScheduleDate();
           document.getElementById('uploadScreen').classList.remove('show');
           document.getElementById('uploadScreen').style.display = 'none';
@@ -374,7 +443,8 @@
       }
     });
 
-    function filtered() { return filter === 'operators' ? EMP.filter(e => !e.skip) : EMP; }
+    function isSupervisor(e) { return e.skip || supervisorIds.has(String(e.employee_id)); }
+    function filtered() { return filter === 'operators' ? EMP.filter(e => !isSupervisor(e)) : EMP; }
 
     function formatHrs(v) { return v == null ? '—' : Number(v).toFixed(2); }
     function hrsToHMM(v) {
@@ -453,9 +523,31 @@
     function renderList() {
       const list = document.getElementById('empList');
       const F = filtered();
-      list.innerHTML = F.map((e, i) => `<div class="emp-item ${e.skip ? 'skip' : ''} ${processed.has(e.employee_id) ? 'done' : ''} ${i === selectedIdx ? 'active' : ''}" data-idx="${i}" data-id="${esc(e.employee_id)}" tabindex="0" role="button"><span class="check">${processed.has(e.employee_id) ? '✓' : ''}</span><div><div class="emp-name">${esc(e.name)}</div><div class="emp-id">${esc(e.employee_id)}${e.skip ? ' · Skip' : ''}</div></div></div>`).join('');
+      list.innerHTML = F.map((e, i) => {
+        const isCte = cteIds.has(String(e.employee_id));
+        const badgeHtml = isCte ? `<span class="list-badge cte">CTE</span>` : '';
+        return `<div class="emp-item ${isSupervisor(e) ? 'skip' : ''} ${processed.has(e.employee_id) ? 'done' : ''} ${i === selectedIdx ? 'active' : ''}" data-idx="${i}" data-id="${esc(e.employee_id)}" tabindex="0" role="button"><span class="check" data-idx="${i}" data-id="${esc(e.employee_id)}" title="Click to toggle done">${processed.has(e.employee_id) ? '✓' : ''}</span><div><div class="emp-name">${esc(e.name)}</div><div class="emp-id">${esc(e.employee_id)}</div></div>${badgeHtml}</div>`;
+      }).join('');
       list.querySelectorAll('.emp-item').forEach(el => {
-        el.addEventListener('click', () => { selectEmp(parseInt(el.dataset.idx)); });
+        el.addEventListener('click', (ev) => {
+          if (ev.target.classList.contains('check')) {
+            ev.stopPropagation();
+            const id = ev.target.dataset.id;
+            const emp = EMP.find(x => String(x.employee_id) === id);
+            if (!id || isSupervisor(emp)) return;
+            if (processed.has(id)) { processed.delete(id); setStatus('Undone', false); }
+            else {
+              const cur = filtered()[selectedIdx];
+              if (cur && String(cur.employee_id) === id) {
+                const notesInput = document.getElementById('entryNotes');
+                if (notesInput) { entries[id] = entries[id] || {}; entries[id].notes = notesInput.value; localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries)); }
+              }
+              processed.add(id); setStatus('Marked done', false);
+            }
+            localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed]));
+            renderList();
+          } else { selectEmp(parseInt(el.dataset.idx)); }
+        });
         el.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); selectEmp(parseInt(el.dataset.idx)); } });
       });
       const activeItem = list.querySelector('.emp-item.active');
@@ -500,7 +592,7 @@
         const lpiOT = (runOverrides[r.paddle] && runOverrides[r.paddle].lpiOT) || parseLpiFromNotes(r) || (isCTE ? '3002' : '1013');
 
         let overrideHtml = '';
-        if (!e.skip && r.actual_hrs > 8) {
+        if (!isSupervisor(e) && r.actual_hrs > 8) {
           overrideHtml = `<div class="run-overrides">
             <label>Main OT:</label>
             <select data-paddle="${esc(r.paddle)}" data-field="mainOT" class="run-ot-select">
@@ -517,39 +609,73 @@
         const laborCode = sel.laborCode || '';
         const isLeaveRun = /FMLA|SICK|VAC|PTO|LEAVE|LWP/i.test(r.paddle || '');
         const suggestLabor = (r.paddle || '').toUpperCase().includes('FMLA') ? '2024' : '';
+        const dayoffExpanded = !!sel.dayoffExpanded;
+        const paidAsOt = !!sel.paidAsOt;
+        const paidAsOtMode = sel.paidAsOtMode || 'single';
+        const paidAsOtCode = sel.paidAsOtCode || '1013';
+        const totalHrs = r.actual_hrs != null ? r.actual_hrs : 0;
+        const savedHrs1013 = sel.paidAsOtHrs1013 ?? (totalHrs ? totalHrs / 2 : 0);
+        const paidAsOtHrs1013 = Math.min(Math.max(0, savedHrs1013), totalHrs);
+        const extraTailExpanded = !!sel.extraTailExpanded;
+        const extraTail = !!sel.extraTail;
+        const extraTailHrs = Math.min(Math.max(0, parseFloat(sel.extraTailHrs) || 0), 24);
+        const extraTailCode = sel.extraTailCode || '1013';
         const ptLabel = 'Use for export';
         const plannedTimes = (r.planned_start && r.planned_end) ? `${esc(r.planned_start)} – ${esc(r.planned_end)}` : '—';
         const actualTimes = (r.actual_start && r.actual_end) ? `${esc(r.actual_start)} – ${esc(r.actual_end)}` : '—';
+        const dayoffHtml = includeRun ? `
+          <div class="dayoff-link" data-paddle="${esc(r.paddle)}" data-action="toggle">${dayoffExpanded ? '▼' : '▶'} Day off? (paid as OT)</div>
+          ${dayoffExpanded ? `<div class="dayoff-panel" data-paddle="${esc(r.paddle)}">
+            <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;cursor:pointer"><input type="checkbox" class="dayoff-paid-cb" data-paddle="${esc(r.paddle)}" ${paidAsOt ? 'checked' : ''}> Paid as OT (uses actual times)</label>
+            ${paidAsOt ? `<div class="dayoff-options">
+              <label><input type="radio" name="dayoff-mode-${esc(e.employee_id)}-${esc(r.paddle)}" value="single" ${paidAsOtMode === 'single' ? 'checked' : ''}> Single: </label>
+              <select class="dayoff-single-select" data-paddle="${esc(r.paddle)}" style="margin-right:0.5rem"><option value="1013" ${paidAsOtCode === '1013' ? 'selected' : ''}>1013</option><option value="3002" ${paidAsOtCode === '3002' ? 'selected' : ''}>3002</option></select>
+              <label><input type="radio" name="dayoff-mode-${esc(e.employee_id)}-${esc(r.paddle)}" value="split" ${paidAsOtMode === 'split' ? 'checked' : ''}> Split: </label>
+              <input type="number" class="dayoff-hrs-1013" data-paddle="${esc(r.paddle)}" data-total="${r.actual_hrs != null ? r.actual_hrs : 0}" min="0" max="${r.actual_hrs != null ? r.actual_hrs : 24}" step="0.25" value="${Math.min(paidAsOtHrs1013, r.actual_hrs != null ? r.actual_hrs : 24)}" placeholder="hrs" style="margin-right:0.25rem;width:52px"> hrs 1013
+              <span class="dayoff-hrs-3002-display" style="font-size:0.8rem;color:var(--text-muted)">(rest as 3002)</span>
+              <span style="font-size:0.7rem;color:var(--text-muted);margin-left:0.25rem">max ${r.actual_hrs != null ? formatHrs(r.actual_hrs) : '—'} hrs total</span>
+            </div>` : ''}
+          </div>` : ''}` : '';
+        const extratailHtml = includeRun ? `
+          <div class="extratail-link" data-paddle="${esc(r.paddle)}" data-action="toggle">${extraTailExpanded ? '▼' : '▶'} Extra time? (append OT)</div>
+          ${extraTailExpanded ? `<div class="extratail-panel" data-paddle="${esc(r.paddle)}">
+            <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;cursor:pointer"><input type="checkbox" class="extratail-cb" data-paddle="${esc(r.paddle)}" ${extraTail ? 'checked' : ''}> Add extra time (e.g. trainer +2 hrs)</label>
+            ${extraTail ? `<div class="extratail-options">
+              <input type="number" class="extratail-hrs" data-paddle="${esc(r.paddle)}" min="0.25" max="24" step="0.25" value="${extraTailHrs || 2}" placeholder="hrs" style="width:52px;margin-right:0.25rem"> hrs at
+              <select class="extratail-code-select" data-paddle="${esc(r.paddle)}" style="margin-right:0.5rem"><option value="1013" ${extraTailCode === '1013' ? 'selected' : ''}>1013</option><option value="3002" ${extraTailCode === '3002' ? 'selected' : ''}>3002</option></select>
+              <span style="font-size:0.7rem;color:var(--text-muted)">appends after main run end</span>
+            </div>` : ''}
+          </div>` : ''}` : '';
         const runSelectHtml = `<div class="run-select ${includeRun ? '' : 'voided'}" data-paddle="${esc(r.paddle)}">
           ${includeRun ? `<span class="run-select-label">${ptLabel}</span>
           <div class="run-pt-cards">
-            <div class="run-pt-card ${plannedOrActual === 'planned' ? 'selected' : ''}" data-pt="planned" data-paddle="${esc(r.paddle)}" tabindex="0" role="button">
+            <div class="run-pt-card ${!paidAsOt && plannedOrActual === 'planned' ? 'selected' : ''}" data-pt="planned" data-paddle="${esc(r.paddle)}" tabindex="0" role="button">
               <div class="run-pt-card-label">Planned</div>
               <div class="run-pt-card-time">${plannedTimes}</div>
               <div class="run-pt-card-hrs" style="font-size:0.75rem;color:var(--text-muted)">${formatHrs(r.planned_hrs)} hrs</div>
             </div>
-            <div class="run-pt-card ${plannedOrActual === 'actual' ? 'selected' : ''}" data-pt="actual" data-paddle="${esc(r.paddle)}" tabindex="0" role="button">
+            <div class="run-pt-card ${!paidAsOt && plannedOrActual === 'actual' ? 'selected' : ''}" data-pt="actual" data-paddle="${esc(r.paddle)}" tabindex="0" role="button">
               <div class="run-pt-card-label">Actual</div>
               <div class="run-pt-card-time">${actualTimes}</div>
               <div class="run-pt-card-hrs" style="font-size:0.75rem;color:var(--text-muted)">${r.actual_hrs != null ? formatHrs(r.actual_hrs) + ' hrs' : '—'}</div>
             </div>
-          </div>${isLeaveRun ? `<label style="display:block;margin-top:0.5rem;font-size:0.75rem">Labor:</label><input type="text" class="run-labor-input" data-paddle="${esc(r.paddle)}" placeholder="${suggestLabor || 'e.g. 2024'}" value="${esc(laborCode)}" maxlength="10" style="width:70px" title="Leave code">` : `<span class="run-select-label" style="font-size:0.7rem;opacity:0.8;margin-top:0.35rem;display:block">→ 1020,1000,1013,3002 from segments</span>`}` : '<span class="run-select-hint">Click card to include</span>'}
+          </div>${dayoffHtml}${extratailHtml}${isLeaveRun ? `<label style="display:block;margin-top:0.5rem;font-size:0.75rem">Labor:</label><input type="text" class="run-labor-input" data-paddle="${esc(r.paddle)}" placeholder="${suggestLabor || 'e.g. 2024'}" value="${esc(laborCode)}" maxlength="10" style="width:70px" title="Leave code">` : `<span class="run-select-label" style="font-size:0.7rem;opacity:0.8;margin-top:0.35rem;display:block">→ 1020,1000,1013,3002 from segments</span>`}` : '<span class="run-select-hint">Click card to include</span>'}
         </div>`;
 
         return `<div class="run-card ${includeRun ? 'run-card-included' : ''}" data-paddle="${esc(r.paddle)}" data-include="${includeRun ? 'true' : 'false'}" tabindex="0" role="button"><div class="run-header"><span class="run-paddle">${esc(r.paddle)}</span>${r.block ? '<span class="run-block">Block ' + esc(r.block) + '</span>' : ''}</div><div class="run-times"><div class="run-group"><div class="run-group-label">Planned</div><div class="run-group-time">${esc(r.planned_start)} – ${esc(r.planned_end)}</div><div class="run-group-hrs hrs">${formatHrs(r.planned_hrs)} hrs</div></div><div class="run-group"><div class="run-group-label">Actual</div>${actualHtml}</div></div>${r.vehicle ? '<div style="margin-top:0.4rem;font-size:0.8rem;color:var(--text-muted)">Vehicle: ' + esc(r.vehicle) + '</div>' : ''}${overrideHtml}${runSelectHtml}${noteBanners.join('')}</div>`;
       }).join('');
 
-      const badgeClass = e.skip ? 'supervisor' : (cteIds.has(String(e.employee_id)) ? 'cte' : 'operator');
-      const badgeText = e.skip ? 'Skip' : (cteIds.has(String(e.employee_id)) ? 'CTE' : 'Op');
+      const badgeClass = isSupervisor(e) ? 'supervisor' : (cteIds.has(String(e.employee_id)) ? 'cte' : 'operator');
+      const badgeText = isSupervisor(e) ? 'Sup' : (cteIds.has(String(e.employee_id)) ? 'CTE · 3002' : 'Op');
 
-      main.innerHTML = `<div class="emp-card"><div class="emp-header"><div><div class="emp-name-lg">${esc(e.name)}</div><div class="emp-id-lg">${esc(e.employee_id)}</div></div><span class="badge ${badgeClass}">${badgeText}</span></div><div class="runs">${runsHtml}</div>${!e.skip ? '<div class="entry-section"><h4>Notes</h4><div class="entry-row"><label>Notes</label><input type="text" placeholder="Optional notes..." id="entryNotes"></div></div>' : ''}<div class="nav-mini"><span class="progress">${pos} / ${total}</span><div class="btns"><button class="nav-btn" id="btnPrev">← Prev</button>${!e.skip ? '<button class="nav-btn primary" id="btnDone">Done & Next</button>' : ''}<button class="nav-btn" id="btnNext">Next →</button></div></div></div>`;
+      main.innerHTML = `<div class="emp-card"><div class="emp-header"><div><div class="emp-name-lg">${esc(e.name)}</div><div class="emp-id-lg">${esc(e.employee_id)}</div></div><span class="badge ${badgeClass}">${badgeText}</span></div><div class="runs">${runsHtml}</div>${!isSupervisor(e) ? '<div class="entry-section"><h4>Notes</h4><div class="entry-row"><label>Notes</label><input type="text" placeholder="Optional notes..." id="entryNotes"></div></div>' : ''}<div class="nav-mini"><span class="progress">${pos} / ${total}</span><div class="btns"><button class="nav-btn" id="btnPrev">← Prev</button>${!isSupervisor(e) ? '<button class="nav-btn primary" id="btnDone">Done & Next</button>' : ''}<button class="nav-btn" id="btnNext">Next →</button></div></div></div>`;
 
       const id = e.employee_id;
       const notesInput = document.getElementById('entryNotes');
       if (entries[id] && notesInput) notesInput.value = entries[id].notes || '';
 
       function saveEntry() {
-        if (e.skip) return;
+        if (isSupervisor(e)) return;
         const ro = {};
         main.querySelectorAll('.run-ot-select').forEach(sel => {
           const p = sel.dataset.paddle;
@@ -564,7 +690,26 @@
           const ptCard = runSelect && runSelect.querySelector('.run-pt-card.selected');
           const plannedOrActual = (ptCard && ptCard.dataset.pt) || 'actual';
           const laborInput = runSelect && runSelect.querySelector('.run-labor-input');
-          rs[p] = { use, plannedOrActual, laborCode: (use && laborInput ? laborInput.value.trim() : '') || '' };
+          const dayoffCb = runSelect && runSelect.querySelector('.dayoff-paid-cb');
+          const paidAsOt = dayoffCb && dayoffCb.checked;
+          const dayoffModeRadio = runSelect && runSelect.querySelector('input[name^="dayoff-mode-"]:checked');
+          const paidAsOtMode = (dayoffModeRadio && dayoffModeRadio.value) || 'single';
+          const singleSelect = runSelect && runSelect.querySelector('.dayoff-single-select');
+          const paidAsOtCode = (singleSelect && singleSelect.value) || '1013';
+          const hrs1013El = runSelect && runSelect.querySelector('.dayoff-hrs-1013');
+          const totalHrsVal = hrs1013El ? parseFloat(hrs1013El.dataset.total) || 0 : 0;
+          let paidAsOtHrs1013 = hrs1013El ? parseFloat(hrs1013El.value) || 0 : 0;
+          paidAsOtHrs1013 = Math.min(Math.max(0, paidAsOtHrs1013), totalHrsVal);
+          const dayoffPanel = runSelect && runSelect.querySelector('.dayoff-panel');
+          const extratailCb = runSelect && runSelect.querySelector('.extratail-cb');
+          const extraTail = extratailCb && extratailCb.checked;
+          const extratailHrsEl = runSelect && runSelect.querySelector('.extratail-hrs');
+          let extraTailHrs = extratailHrsEl ? parseFloat(extratailHrsEl.value) || 0 : 0;
+          extraTailHrs = Math.min(Math.max(0, extraTailHrs), 24);
+          const extratailCodeSel = runSelect && runSelect.querySelector('.extratail-code-select');
+          const extraTailCode = (extratailCodeSel && extratailCodeSel.value) || '1013';
+          const extratailPanel = runSelect && runSelect.querySelector('.extratail-panel');
+          rs[p] = { use, plannedOrActual, laborCode: (use && laborInput ? laborInput.value.trim() : '') || '', paidAsOt, paidAsOtMode, paidAsOtCode, paidAsOtHrs1013, dayoffExpanded: !!dayoffPanel, extraTail, extraTailHrs, extraTailCode, extraTailExpanded: !!extratailPanel };
         });
         const hasOverrides = Object.keys(ro).length > 0;
         entries[id] = {
@@ -604,6 +749,32 @@
       main.querySelectorAll('.run-labor-input').forEach(inp => {
         inp.addEventListener('input', () => saveEntry());
         inp.addEventListener('blur', () => saveEntry());
+      });
+      main.querySelectorAll('.dayoff-link[data-action="toggle"]').forEach(link => {
+        link.addEventListener('click', (ev) => { ev.stopPropagation(); const rs = entries[id]?.runSelections || {}; const p = link.dataset.paddle; rs[p] = rs[p] || {}; rs[p].dayoffExpanded = !rs[p].dayoffExpanded; if (!entries[id]) entries[id] = { notes: '', runOverrides: {}, runSelections: {} }; entries[id].runSelections = rs; localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries)); renderEmp(); });
+      });
+      main.querySelectorAll('.dayoff-paid-cb, .dayoff-single-select').forEach(el => {
+        el.addEventListener('change', () => { saveEntry(); renderEmp(); });
+      });
+      main.querySelectorAll('.dayoff-hrs-1013').forEach(inp => {
+        const clamp = () => { const max = parseFloat(inp.dataset.total) || 24; const v = parseFloat(inp.value) || 0; if (v > max) { inp.value = max; } else if (v < 0) { inp.value = 0; } saveEntry(); };
+        inp.addEventListener('input', clamp);
+        inp.addEventListener('blur', () => { clamp(); renderEmp(); });
+        inp.addEventListener('change', () => { saveEntry(); renderEmp(); });
+      });
+      main.querySelectorAll('input[name^="dayoff-mode-"]').forEach(radio => {
+        radio.addEventListener('change', () => { saveEntry(); renderEmp(); });
+      });
+      main.querySelectorAll('.extratail-link[data-action="toggle"]').forEach(link => {
+        link.addEventListener('click', (ev) => { ev.stopPropagation(); const rs = entries[id]?.runSelections || {}; const p = link.dataset.paddle; rs[p] = rs[p] || {}; rs[p].extraTailExpanded = !rs[p].extraTailExpanded; if (!entries[id]) entries[id] = { notes: '', runOverrides: {}, runSelections: {} }; entries[id].runSelections = rs; localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries)); renderEmp(); });
+      });
+      main.querySelectorAll('.extratail-cb, .extratail-code-select').forEach(el => {
+        el.addEventListener('change', () => { saveEntry(); renderEmp(); });
+      });
+      main.querySelectorAll('.extratail-hrs').forEach(inp => {
+        const clamp = () => { const v = parseFloat(inp.value) || 0; if (v > 24) inp.value = 24; else if (v < 0) inp.value = 0; saveEntry(); };
+        inp.addEventListener('input', clamp);
+        inp.addEventListener('blur', () => { clamp(); renderEmp(); });
       });
       main.querySelectorAll('.run-card[data-paddle]').forEach(card => {
         card.addEventListener('click', (ev) => {
@@ -670,24 +841,76 @@
       document.getElementById('cteModal').style.display = 'none';
     }
 
+    function renderSupervisorsTable(wrapEl) {
+      const wrap = wrapEl || document.getElementById('supervisorsTableWrap');
+      if (!wrap) return;
+      const ids = [...supervisorIds].sort();
+      function getName(id) {
+        const e = EMP.find(x => String(x.employee_id) === String(id));
+        return e ? e.name : '—';
+      }
+      if (ids.length === 0) {
+        wrap.innerHTML = '<p class="cte-empty">No supervisors. Add IDs above or import from config.</p>';
+        return;
+      }
+      wrap.innerHTML = '<table class="cte-table"><thead><tr><th>Employee ID</th><th>Name</th><th></th></tr></thead><tbody>' +
+        ids.map(id => `<tr><td>${esc(id)}</td><td>${esc(getName(id))}</td><td><button type="button" class="del-btn" data-id="${esc(id)}">Delete</button></td></tr>`).join('') +
+        '</tbody></table>';
+      wrap.querySelectorAll('.del-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          supervisorIds.delete(btn.dataset.id);
+          saveSupervisorsToStorage();
+          renderSupervisorsTable(wrap);
+          renderSupervisorsTable(document.getElementById('supervisorsTableWrap'));
+          if (currentView === 'data') { renderList(); renderEmp(); }
+          setStatus('Removed from supervisors list', false);
+        });
+      });
+    }
+
+    function renderSupervisorsView() {
+      renderSupervisorsTable(document.getElementById('supervisorsTableWrap'));
+    }
+
+    function showSupervisorsModal() {
+      document.getElementById('supervisorsModal').style.display = 'flex';
+      renderSupervisorsTable(document.getElementById('supervisorsModalTableWrap'));
+      document.getElementById('supervisorsModalAddId').value = '';
+      document.getElementById('supervisorsModalAddId').focus();
+    }
+
+    function hideSupervisorsModal() {
+      document.getElementById('supervisorsModal').style.display = 'none';
+    }
+
     function switchView(view) {
       currentView = view;
       document.querySelectorAll('.view-tab').forEach(t => t.classList.toggle('active', t.dataset.view === view));
       const sidebar = document.getElementById('sidebar');
       const dataMain = document.getElementById('dataEntryMain');
       const cteView = document.getElementById('cteView');
+      const supervisorsView = document.getElementById('supervisorsView');
       if (view === 'data') {
         sidebar.style.display = '';
         dataMain.style.display = '';
         cteView.style.display = 'none';
+        supervisorsView.style.display = 'none';
         renderList();
         renderEmp();
-      } else {
+      } else if (view === 'cte') {
         sidebar.style.display = 'none';
         dataMain.style.display = 'none';
         cteView.style.display = 'block';
+        supervisorsView.style.display = 'none';
         renderCteView();
         setStatus('CTE List', true);
+      } else if (view === 'supervisors') {
+        sidebar.style.display = 'none';
+        dataMain.style.display = 'none';
+        cteView.style.display = 'none';
+        supervisorsView.style.display = 'block';
+        renderSupervisorsView();
+        setStatus('Supervisors List', true);
       }
     }
 
@@ -710,12 +933,13 @@
       return code.split(/\s/)[0] || '';
     }
 
-    function doExport() {
+    function doExport(doneOnly) {
       const scheduleDate = formatDateForTcp(window.DOS_DATA && window.DOS_DATA.date) || '';
       const tcpRows = [['employee_id','date_in','date_out','laborcode','time_in','time_out']];
       const legacyRows = [['employee_id','name','notes']];
       let hasTcp = false;
-      EMP.filter(e => !e.skip).forEach(emp => {
+      const empsToExport = doneOnly ? EMP.filter(e => !isSupervisor(e) && processed.has(e.employee_id)) : EMP.filter(e => !isSupervisor(e));
+      empsToExport.forEach(emp => {
         const x = entries[emp.employee_id] || {};
         const rs = x.runSelections || {};
         const runOverrides = x.runOverrides || {};
@@ -725,14 +949,42 @@
           const usePlanned = sel.plannedOrActual === 'planned';
           const runLabor = (sel.laborCode || '').trim();
           const isLeave = /FMLA|SICK|VAC|PTO|LEAVE|LWP/i.test(r.paddle || '');
+          const paidAsOt = !!sel.paidAsOt;
+          let runEnd = null;
 
-          if (isLeave && runLabor) {
+          if (paidAsOt && r.actual_start && r.actual_end) {
+            const code = sel.paidAsOtCode || '1013';
+            const mode = sel.paidAsOtMode || 'single';
+            if (mode === 'single') {
+              tcpRows.push([emp.employee_id, scheduleDate, scheduleDate, code, r.actual_start, r.actual_end]);
+              hasTcp = true;
+            } else {
+              const startMins = parseTime(r.actual_start);
+              const endMins = parseTime(r.actual_end);
+              const totalMins = endMins - startMins;
+              const actualHrs = r.actual_hrs != null ? r.actual_hrs : totalMins / 60;
+              const effectiveHrs1013 = Math.min(Math.max(0, parseFloat(sel.paidAsOtHrs1013) || 0), actualHrs);
+              const splitMins = startMins + Math.round(effectiveHrs1013 * 60);
+              const splitMinsClamped = Math.min(Math.max(splitMins, startMins), endMins);
+              const splitTime = formatTime(splitMinsClamped);
+              if (splitMinsClamped > startMins) {
+                tcpRows.push([emp.employee_id, scheduleDate, scheduleDate, '1013', r.actual_start, splitTime]);
+                hasTcp = true;
+              }
+              if (splitMinsClamped < endMins) {
+                tcpRows.push([emp.employee_id, scheduleDate, scheduleDate, '3002', splitTime, r.actual_end]);
+                hasTcp = true;
+              }
+            }
+            runEnd = r.actual_end;
+          } else if (isLeave && runLabor) {
             const timeIn = usePlanned ? (r.planned_start || '') : (r.actual_start || '');
             const timeOut = usePlanned ? (r.planned_end || '') : (r.actual_end || '');
             if (timeIn && timeOut) {
               tcpRows.push([emp.employee_id, scheduleDate, scheduleDate, runLabor, timeIn, timeOut]);
               hasTcp = true;
             }
+            runEnd = timeOut || null;
           } else if (usePlanned) {
             const timeIn = r.planned_start || '';
             const timeOut = r.planned_end || '';
@@ -740,6 +992,7 @@
               tcpRows.push([emp.employee_id, scheduleDate, scheduleDate, '1020', timeIn, timeOut]);
               hasTcp = true;
             }
+            runEnd = r.planned_end || null;
           } else {
             const segments = getActualSegments(r, emp.employee_id, runOverrides);
             if (segments && segments.length > 0) {
@@ -751,14 +1004,23 @@
                 }
               });
             }
+            runEnd = r.actual_end || null;
+          }
+
+          if (sel.extraTail && (sel.extraTailHrs || 0) > 0 && runEnd) {
+            const hrs = Math.min(Math.max(0, parseFloat(sel.extraTailHrs) || 0), 24);
+            const tailEnd = formatTime(parseTime(runEnd) + Math.round(hrs * 60));
+            tcpRows.push([emp.employee_id, scheduleDate, scheduleDate, sel.extraTailCode || '1013', runEnd, tailEnd]);
+            hasTcp = true;
           }
         });
         if (x.notes !== undefined) legacyRows.push([emp.employee_id, emp.name, x.notes || '']);
       });
       const csv = hasTcp ? tcpRows.map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n')
         : legacyRows.map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n');
-      const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = 'dos_tcp_' + new Date().toISOString().slice(0,10) + '.csv'; a.click();
-      setStatus('Exported ' + (hasTcp ? tcpRows.length - 1 + ' TCP rows' : 'CSV'), false);
+      const suffix = doneOnly ? '_done' : '';
+      const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = 'dos_tcp_' + new Date().toISOString().slice(0,10) + suffix + '.csv'; a.click();
+      setStatus('Exported ' + (hasTcp ? tcpRows.length - 1 + ' TCP rows' : 'CSV') + (doneOnly ? ' (done only)' : ''), false);
     }
 
     function doClear() {
@@ -797,6 +1059,22 @@
         if (ev.key === 'Enter') document.getElementById('cteAddBtn').click();
       });
       document.getElementById('cteImportBtn').addEventListener('click', () => importCteFromConfig());
+      document.getElementById('supervisorsAddBtn').addEventListener('click', () => {
+        const input = document.getElementById('supervisorsAddId');
+        const raw = (input.value || '').trim();
+        if (!raw) return;
+        const ids = raw.split(/[\s,;\n]+/).map(s => s.trim()).filter(Boolean);
+        ids.forEach(id => supervisorIds.add(id));
+        saveSupervisorsToStorage();
+        input.value = '';
+        renderSupervisorsView();
+        if (currentView === 'data') { renderList(); renderEmp(); }
+        setStatus(ids.length > 1 ? 'Added ' + ids.length + ' IDs' : 'Added ' + ids[0], false);
+      });
+      document.getElementById('supervisorsAddId').addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter') document.getElementById('supervisorsAddBtn').click();
+      });
+      document.getElementById('supervisorsImportBtn').addEventListener('click', () => importSupervisorsFromConfig());
       document.querySelectorAll('.filter-btn').forEach(btn => {
         if (!btn.dataset.filter) return;
         btn.onclick = () => { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); filter = btn.dataset.filter; selectedIdx = 0; renderList(); renderEmp(); };
@@ -824,8 +1102,8 @@
         const k = ev.key.toLowerCase();
         if (k === 'n' || k === 'j' || ev.key === 'ArrowRight') { ev.preventDefault(); nav(1); return; }
         if (k === 'p' || k === 'k' || ev.key === 'ArrowLeft') { ev.preventDefault(); nav(-1); return; }
-        if (k === 'd') { ev.preventDefault(); const e = filtered()[selectedIdx]; if (e && !e.skip) { const id = e.employee_id; const notesInput = document.getElementById('entryNotes'); if (notesInput) { entries[id] = entries[id] || {}; entries[id].notes = notesInput.value; localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries)); } processed.add(id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Done & next', false); nav(1); } return; }
-        if (k === 'e') { ev.preventDefault(); doExport(); return; }
+        if (k === 'd') { ev.preventDefault(); const e = filtered()[selectedIdx]; if (e && !isSupervisor(e)) { const id = e.employee_id; if (ev.shiftKey) { processed.delete(id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Undone', false); renderList(); } else { const notesInput = document.getElementById('entryNotes'); if (notesInput) { entries[id] = entries[id] || {}; entries[id].notes = notesInput.value; localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries)); } processed.add(id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Done & next', false); nav(1); } } return; }
+        if (k === 'e') { ev.preventDefault(); doExport(ev.shiftKey); return; }
         if (k === 'c') { ev.preventDefault(); doClear(); return; }
         if (k === 's') { ev.preventDefault(); doStartFresh(); return; }
         if (k === '?') { ev.preventDefault(); shortcutOverlay.classList.add('show'); shortcutOverlay.focus(); return; }
@@ -835,7 +1113,7 @@
       cmdInput.addEventListener('keydown', (ev) => {
         if (ev.key === 'Escape') { ev.preventDefault(); cmdInput.blur(); cmdInput.value = ''; return; }
         const k = ev.key.toLowerCase();
-        if (k === 'n' || k === 'p' || k === 'd' || k === 'e' || k === 'c' || k === 's' || k === '?') {
+        if (k === 'n' || k === 'p' || k === 'd' || k === 'e' || k === 'c' || k === 's' || k === '?' || (k === 'd' && ev.shiftKey)) {
           ev.preventDefault();
           handleKey(ev);
           cmdInput.value = '';
@@ -846,8 +1124,10 @@
           cmdInput.value = '';
           if (v === 'n' || v === 'next') nav(1);
           else if (v === 'p' || v === 'prev') nav(-1);
-          else if (v === 'd' || v === 'done') { const e = filtered()[selectedIdx]; if (e && !e.skip) { const id = e.employee_id; const notesInput = document.getElementById('entryNotes'); if (notesInput) { entries[id] = entries[id] || {}; entries[id].notes = notesInput.value; localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries)); } processed.add(id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Done & next', false); nav(1); } }
-          else if (v === 'e' || v === 'export') doExport();
+          else if (v === 'd' || v === 'done') { const e = filtered()[selectedIdx]; if (e && !isSupervisor(e)) { const id = e.employee_id; const notesInput = document.getElementById('entryNotes'); if (notesInput) { entries[id] = entries[id] || {}; entries[id].notes = notesInput.value; localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries)); } processed.add(id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Done & next', false); nav(1); } }
+          else if (v === 'ud' || v === 'undo' || v === 'undo done') { const e = filtered()[selectedIdx]; if (e && !isSupervisor(e) && processed.has(e.employee_id)) { processed.delete(e.employee_id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Undone', false); renderList(); } }
+          else if (v === 'e' || v === 'export') doExport(false);
+          else if (v === 'ed' || v === 'export done') doExport(true);
           else if (v === 'c' || v === 'clear') doClear();
           else if (v === 's' || v === 'fresh') doStartFresh();
           else if (v === '?' || v === 'help') shortcutOverlay.classList.add('show');
@@ -885,8 +1165,35 @@
       });
     }
 
+    function bindSupervisorsModal() {
+      document.getElementById('uploadSupervisorsLink')?.addEventListener('click', (ev) => { ev.preventDefault(); loadSupervisors(); showSupervisorsModal(); });
+      document.getElementById('supervisorsModalClose').addEventListener('click', () => hideSupervisorsModal());
+      document.getElementById('supervisorsModal').addEventListener('click', (ev) => { if (ev.target.id === 'supervisorsModal') hideSupervisorsModal(); });
+      document.getElementById('supervisorsModal').addEventListener('keydown', (ev) => { if (ev.key === 'Escape') hideSupervisorsModal(); });
+      document.getElementById('supervisorsModalAddBtn').addEventListener('click', () => {
+        const input = document.getElementById('supervisorsModalAddId');
+        const raw = (input.value || '').trim();
+        if (!raw) return;
+        const ids = raw.split(/[\s,;\n]+/).map(s => s.trim()).filter(Boolean);
+        ids.forEach(id => supervisorIds.add(id));
+        saveSupervisorsToStorage();
+        input.value = '';
+        renderSupervisorsTable(document.getElementById('supervisorsModalTableWrap'));
+        input.focus();
+      });
+      document.getElementById('supervisorsModalAddId').addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter') document.getElementById('supervisorsModalAddBtn').click();
+      });
+      document.getElementById('supervisorsModalImportBtn').addEventListener('click', async () => {
+        await importSupervisorsFromConfig();
+        renderSupervisorsTable(document.getElementById('supervisorsModalTableWrap'));
+      });
+    }
+
     loadCte();
+    loadSupervisors();
     bindCteModal();
+    bindSupervisorsModal();
     init();
   </script>
 </body>
