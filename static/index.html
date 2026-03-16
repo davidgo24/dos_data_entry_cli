@@ -6,103 +6,156 @@
   <title>DOS Data Entry — Transit</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    :root { --bg: #0f0f12; --surface: #18181c; --surface2: #232329; --border: #2e2e35; --text: #e8e8ec; --text-muted: #8b8b96; --accent: #22c55e; --accent-dim: #16a34a; --highlight: #38bdf8; --warn: #f59e0b; --skip: #6b7280; --radius: 10px; }
+    :root {
+      --bg: #0d0d0f;
+      --surface: #151518;
+      --surface2: #1c1c20;
+      --border: #27272a;
+      --text: #c8c8d0;
+      --text-muted: #6b6b75;
+      --accent: #4ade80;
+      --accent-dim: #22c55e;
+      --highlight: #38bdf8;
+      --warn: #f59e0b;
+      --cte: #a78bfa;
+      --skip: #6b7280;
+      --radius: 6px;
+    }
     * { box-sizing: border-box; }
-    body { margin: 0; font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.5; }
-    .app { display: flex; height: 100vh; overflow: hidden; }
-    .sidebar { width: 280px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
-    .sidebar-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-    .sidebar-title { font-size: 0.9rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-    .sidebar-date { font-size: 0.8rem; color: var(--accent); margin-top: 0.25rem; }
-    .filter-bar { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
-    .filter-btn { padding: 0.4rem 0.75rem; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-size: 0.8rem; cursor: pointer; }
-    .filter-btn:hover { color: var(--text); border-color: var(--text-muted); }
-    .filter-btn.active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
-    .emp-list { flex: 1; min-width: 0; overflow-y: auto; padding: 0.5rem; }
-    .emp-item { padding: 0.6rem 0.8rem; border-radius: var(--radius); cursor: pointer; display: flex; align-items: center; gap: 0.5rem; }
+    body { margin: 0; font-family: 'IBM Plex Mono', 'JetBrains Mono', monospace; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.5; font-size: 14px; }
+    .cmd-bar {
+      flex-shrink: 0; padding: 0.4rem 1rem; background: var(--surface); border-bottom: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text-muted);
+    }
+    .cmd-bar-inner { display: flex; align-items: center; gap: 1rem; max-width: 1200px; margin: 0 auto; }
+    .cmd-hints { color: var(--text-muted); }
+    .cmd-hints kbd { color: var(--text); margin-right: 0.5rem; }
+    .cmd-input-wrap { flex: 1; min-width: 0; display: flex; align-items: center; }
+    .cmd-input {
+      width: 100%; max-width: 200px; padding: 0.25rem 0.5rem; background: transparent; border: none;
+      color: var(--text); font-family: inherit; font-size: inherit; outline: none;
+    }
+    .cmd-input::placeholder { color: var(--text-muted); }
+    .cmd-input:focus { outline: none; }
+    .cmd-bar[data-focused="true"] .cmd-input-wrap { outline: 1px solid var(--accent); outline-offset: -1px; }
+    .layout { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+    .body { display: flex; flex: 1; min-height: 0; }
+    .sidebar { width: 200px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+    .sidebar-header { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .sidebar-title { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    .sidebar-date { font-size: 0.7rem; color: var(--accent); margin-top: 0.15rem; }
+    .filter-row { display: flex; gap: 0.25rem; margin-top: 0.5rem; }
+    .filter-btn { padding: 0.3rem 0.5rem; border-radius: 4px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-size: 0.75rem; cursor: pointer; font-family: inherit; }
+    .filter-btn:hover { color: var(--text); }
+    .filter-btn.active { background: var(--accent-dim); border-color: var(--accent-dim); color: var(--bg); }
+    .emp-list { flex: 1; min-width: 0; overflow-y: auto; padding: 0.35rem; }
+    .emp-item {
+      padding: 0.45rem 0.6rem; border-radius: var(--radius); cursor: pointer; display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem;
+    }
     .emp-item:hover { background: var(--surface2); }
-    .emp-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    .emp-item.active:focus-visible { outline-color: var(--highlight); }
+    .emp-item:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
     .emp-item.active { background: var(--surface2); border-left: 3px solid var(--highlight); }
-    .emp-item.active > div > div:first-child { color: var(--highlight); font-weight: 600; }
-    .emp-item.active .emp-id { color: var(--highlight); }
+    .emp-item.active .emp-name { color: var(--highlight); }
     .emp-item.skip { opacity: 0.6; }
-    .emp-item .check { width: 18px; height: 18px; border-radius: 4px; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--accent); }
+    .emp-item .check { width: 14px; height: 14px; border-radius: 3px; border: 1px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 9px; color: var(--accent); }
     .emp-item.done .check { background: var(--accent); border-color: var(--accent); color: var(--bg); }
-    .main { flex: 1; min-width: 0; overflow-y: auto; padding: 2rem 2.5rem; }
-    .main-inner { max-width: 900px; margin: 0 auto; min-width: 0; }
-    .emp-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; margin-bottom: 2rem; }
-    .emp-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
-    .emp-name { font-size: 1.5rem; font-weight: 700; color: var(--highlight); }
-    .emp-id { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text-muted); }
-    .emp-header .emp-id { font-size: 1rem; color: var(--highlight); background: rgba(56, 189, 248, 0.15); padding: 0.25rem 0.6rem; border-radius: 6px; display: inline-block; margin-top: 0.35rem; }
-    .badge { padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
-    .badge.operator { background: rgba(34, 197, 94, 0.2); color: var(--accent); }
-    .badge.supervisor { background: rgba(107, 114, 128, 0.3); color: var(--text-muted); }
-    .run-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
-    .run-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; flex-wrap: wrap; }
-    .run-paddle { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 600; color: var(--accent); }
-    .run-block { color: var(--text-muted); font-size: 0.9rem; }
-    .run-times { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.25rem; margin-bottom: 1rem; }
-    .run-group { background: rgba(0,0,0,0.2); border-radius: 8px; padding: 1rem; border: 1px solid var(--border); }
-    .run-group-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.5rem; }
-    .run-group-time { font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 500; margin-bottom: 0.35rem; }
-    .run-group-hrs { font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; }
+    .emp-name { font-weight: 500; }
+    .emp-id { font-size: 0.7rem; color: var(--text-muted); margin-top: 1px; }
+    .main { flex: 1; min-width: 0; overflow-y: auto; padding: 1.25rem 1.5rem; }
+    .main-inner { max-width: 860px; margin: 0 auto; min-width: 0; }
+    .emp-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    .emp-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+    .emp-name-lg { font-size: 1.25rem; font-weight: 600; color: var(--highlight); }
+    .emp-id-lg { font-size: 0.85rem; color: var(--text-muted); background: rgba(56, 189, 248, 0.12); padding: 0.2rem 0.5rem; border-radius: 4px; margin-top: 0.25rem; display: inline-block; }
+    .badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; }
+    .badge.operator { background: rgba(74, 222, 128, 0.2); color: var(--accent); }
+    .badge.supervisor { background: rgba(107, 114, 128, 0.25); color: var(--text-muted); }
+    .badge.cte { background: rgba(167, 139, 250, 0.2); color: var(--cte); }
+    .run-card { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 0.75rem; }
+    .run-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; flex-wrap: wrap; }
+    .run-paddle { font-weight: 600; color: var(--accent); font-size: 1rem; }
+    .run-block { color: var(--text-muted); font-size: 0.85rem; }
+    .run-times { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 0.75rem; }
+    .run-group { background: rgba(0,0,0,0.2); border-radius: 6px; padding: 0.75rem; border: 1px solid var(--border); }
+    .run-group-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 0.35rem; }
+    .run-group-time { font-size: 0.95rem; font-weight: 500; margin-bottom: 0.25rem; }
+    .run-group-hrs { font-size: 0.9rem; }
     .run-group-hrs.hrs { color: var(--accent); }
     .run-group-hrs.ot { color: var(--warn); }
+    .run-group-hrs.cte { color: var(--cte); }
     .actual-segments { margin-top: 0.5rem; }
-    .segment-line { font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; margin-bottom: 0.35rem; }
+    .segment-line { font-size: 0.85rem; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.4rem; }
     .segment-line:last-child { margin-bottom: 0; }
-    .segment-line .seg-code { color: var(--text-muted); font-size: 0.8rem; margin-right: 0.4rem; }
+    .seg-code { font-size: 0.75rem; min-width: 80px; }
+    .segment-line.reg .seg-code { color: var(--text-muted); }
     .segment-line.guar .seg-code { color: var(--accent); }
     .segment-line.ot .seg-code { color: var(--warn); }
-    .segment-total { font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem; padding-top: 0.35rem; border-top: 1px dashed var(--border); }
-    .run-time { display: flex; flex-direction: column; gap: 0.2rem; }
-    .run-time-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
-    .run-time-val { font-family: 'JetBrains Mono', monospace; font-size: 1rem; font-weight: 500; }
-    .note-banner { background: rgba(245, 158, 11, 0.12); border-left: 4px solid var(--warn); padding: 0.75rem 1rem; margin-top: 0.5rem; border-radius: 0 6px 6px 0; }
-    .note-banner:first-of-type { margin-top: 0.75rem; }
-    .note-banner-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--warn); margin-bottom: 0.25rem; }
-    .note-banner-content { font-size: 0.9rem; color: var(--text); }
-    .entry-section { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
-    .entry-section h4 { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem; }
-    .entry-row { display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
-    .entry-row label { font-size: 0.9rem; color: var(--text-muted); min-width: 80px; }
-    .entry-row input { padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 0.9rem; flex: 1; min-width: 0; }
-    .nav-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
-    .nav-btn { padding: 0.6rem 1.25rem; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 0.9rem; font-weight: 500; cursor: pointer; }
+    .segment-line.cte .seg-code { color: var(--cte); }
+    .segment-lpi { border-left: 3px solid var(--warn); padding-left: 0.5rem; margin-top: 0.25rem; }
+    .segment-total { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.4rem; padding-top: 0.3rem; border-top: 1px dashed var(--border); }
+    .note-banner { background: rgba(245, 158, 11, 0.1); border-left: 3px solid var(--warn); padding: 0.5rem 0.75rem; margin-top: 0.4rem; border-radius: 0 4px 4px 0; font-size: 0.85rem; }
+    .note-banner-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--warn); margin-bottom: 0.15rem; }
+    .entry-section { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border); }
+    .entry-section h4 { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.75rem; }
+    .entry-row { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin-bottom: 0.75rem; }
+    .entry-row label { font-size: 0.85rem; color: var(--text-muted); min-width: 70px; }
+    .entry-row input, .entry-row select { padding: 0.4rem 0.6rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 0.85rem; font-family: inherit; }
+    .run-overrides { margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+    .run-overrides label { font-size: 0.75rem; color: var(--text-muted); }
+    .run-overrides select { padding: 0.25rem 0.4rem; font-size: 0.8rem; }
+    .run-select { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px dashed var(--border); display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+    .run-select-label { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .run-select-radio { display: flex; gap: 0.5rem; align-items: center; }
+    .run-select-radio label { font-size: 0.8rem; color: var(--text); font-weight: normal; cursor: pointer; display: flex; align-items: center; gap: 0.25rem; }
+    .run-select.voided { opacity: 0.6; }
+    .nav-mini { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .nav-mini .progress { font-size: 0.8rem; color: var(--text-muted); }
+    .nav-mini .btns { display: flex; gap: 0.5rem; }
+    .nav-btn { padding: 0.4rem 0.8rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 0.85rem; cursor: pointer; font-family: inherit; }
     .nav-btn:hover { background: var(--surface2); }
     .nav-btn.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
-    .progress { font-size: 0.85rem; color: var(--text-muted); }
-    .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-muted); font-size: 1.1rem; }
-    .upload-screen { display: none; min-height: 100vh; align-items: center; justify-content: center; padding: 2rem; }
+    .status-line { flex-shrink: 0; padding: 0.3rem 1rem; background: var(--surface); border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--text-muted); }
+    .status-line-inner { max-width: 1200px; margin: 0 auto; }
+    .empty-state { text-align: center; padding: 3rem 1.5rem; color: var(--text-muted); font-size: 1rem; }
+    .upload-screen { display: none; min-height: 100vh; align-items: center; justify-content: center; padding: 1.5rem; }
     .upload-screen.show { display: flex; }
-    .upload-box { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2.5rem; max-width: 420px; text-align: center; }
-    .upload-box h1 { font-size: 1.25rem; margin-bottom: 0.5rem; }
-    .upload-box p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
-    .upload-box input[type="file"] { margin-bottom: 1rem; }
-    .upload-box .error { color: #ef4444; font-size: 0.9rem; margin-top: 0.5rem; }
+    .upload-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 2rem; max-width: 400px; text-align: center; }
+    .upload-box h1 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .upload-box p { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem; }
+    .upload-box input[type="file"] { margin-bottom: 0.75rem; }
+    .upload-box .error { color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem; }
     .app.hidden { display: none; }
-    @media (max-width: 1100px) {
-      .sidebar { width: 240px; }
-      .main { padding: 1.25rem 1.5rem; }
-      .emp-card { padding: 1.5rem; }
-      .run-times { grid-template-columns: 1fr; }
-      .nav-bar { flex-wrap: wrap; }
-    }
+    .shortcut-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; padding: 2rem; }
+    .shortcut-overlay.show { display: flex; }
+    .shortcut-box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem 2rem; max-width: 360px; }
+    .shortcut-box h3 { margin: 0 0 1rem; font-size: 1rem; }
+    .shortcut-box table { width: 100%; font-size: 0.9rem; }
+    .shortcut-box td { padding: 0.35rem 0.5rem 0.35rem 0; }
+    .shortcut-box kbd { color: var(--accent); margin-right: 0.5rem; }
+    .view-tabs { display: flex; gap: 0.25rem; }
+    .view-tab { padding: 0.3rem 0.6rem; border-radius: 4px; border: none; background: transparent; color: var(--text-muted); font-size: 0.8rem; cursor: pointer; font-family: inherit; }
+    .view-tab:hover { color: var(--text); }
+    .view-tab.active { background: var(--surface2); color: var(--highlight); }
+    .cte-view { padding: 1.5rem; max-width: 560px; margin: 0 auto; }
+    .cte-view h2 { font-size: 1rem; margin: 0 0 1rem; color: var(--text-muted); }
+    .cte-add { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .cte-add input { padding: 0.4rem 0.6rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 0.85rem; font-family: inherit; width: 140px; }
+    .cte-add button { padding: 0.4rem 0.75rem; border-radius: 4px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-size: 0.85rem; cursor: pointer; font-family: inherit; }
+    .cte-add button.primary { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+    .cte-add button:hover { background: var(--surface2); }
+    .cte-add button.primary:hover { background: var(--accent-dim); }
+    .cte-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .cte-table th, .cte-table td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
+    .cte-table th { color: var(--text-muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .cte-table .del-btn { padding: 0.25rem 0.5rem; font-size: 0.75rem; color: var(--warn); background: transparent; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; }
+    .cte-table .del-btn:hover { background: rgba(245, 158, 11, 0.15); }
+    .cte-empty { color: var(--text-muted); font-size: 0.9rem; padding: 1rem 0; }
+    .cte-actions { margin-bottom: 1rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
     @media (max-width: 900px) {
-      .sidebar { width: 220px; }
-      .sidebar-header { padding: 0.75rem 1rem; }
-      .main { padding: 1rem; }
-      .emp-card { padding: 1.25rem; }
-      .emp-name { font-size: 1.25rem; }
-    }
-    @media (max-width: 700px) {
-      .sidebar { width: 200px; }
-      .main { padding: 0.75rem 1rem; }
-      .emp-card { padding: 1rem; }
+      .sidebar { width: 180px; }
+      .run-times { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -113,49 +166,141 @@
       <p>Upload your DOS Excel file to get started.</p>
       <form id="uploadForm" onsubmit="return false;">
         <input type="file" name="file" accept=".xlsx,.xls" id="fileInput" required>
-        <div style="text-align:left;margin:0.75rem 0;font-size:0.85rem;">
-          <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;color:var(--text-muted);">
+        <div style="text-align:left;margin:0.5rem 0;font-size:0.8rem;">
+          <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;color:var(--text-muted);">
             <input type="checkbox" id="formatRaw" name="format" value="raw">
             <span>Raw report format (DOS_Report_*.xlsx)</span>
           </label>
         </div>
         <button type="button" class="nav-btn primary" id="uploadBtn">Upload & Load</button>
       </form>
+      <p style="margin-top:1rem;font-size:0.8rem;"><a href="#" id="uploadCteLink" style="color:var(--accent);">Manage CTE list</a> (add before or after loading)</p>
       <p id="uploadError" class="error"></p>
     </div>
   </div>
-  <div class="app hidden" id="app">
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="sidebar-title">DOS Data Entry</div>
-        <div class="sidebar-date" id="dosDate"></div>
-        <div class="filter-bar">
-          <button class="filter-btn active" data-filter="operators">Operators</button>
-          <button class="filter-btn" data-filter="all">All</button>
-          <button class="filter-btn" id="clearProgress" title="Clear progress and notes (same data)">Clear</button>
-          <button class="filter-btn" id="startFresh" title="Clear everything and upload new file">Start Fresh</button>
-          <button class="filter-btn" id="exportBtn" title="Export CSV">Export</button>
+  <div class="layout app hidden" id="app">
+    <div class="cmd-bar" id="cmdBar" tabindex="-1">
+      <div class="cmd-bar-inner">
+        <div class="view-tabs">
+          <button class="view-tab active" data-view="data" id="tabData">Data Entry</button>
+          <button class="view-tab" data-view="cte" id="tabCte">CTE List</button>
         </div>
+        <span class="cmd-hints"><kbd>n</kbd>next <kbd>p</kbd>prev <kbd>d</kbd>done <kbd>e</kbd>export <kbd>c</kbd>clear <kbd>s</kbd>fresh <kbd>?</kbd>help</span>
+        <div class="cmd-input-wrap"><input type="text" class="cmd-input" id="cmdInput" placeholder="type command..." autocomplete="off"></div>
       </div>
-      <div class="emp-list" id="empList"></div>
-    </aside>
-    <main class="main">
-      <div class="main-inner" id="mainContent"></div>
-    </main>
+    </div>
+    <div class="body">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-title">Employees</div>
+          <div class="sidebar-date" id="dosDate"></div>
+          <div class="filter-row">
+            <button class="filter-btn active" data-filter="operators">Op</button>
+            <button class="filter-btn" data-filter="all">All</button>
+          </div>
+        </div>
+        <div class="emp-list" id="empList"></div>
+      </aside>
+      <main class="main" id="dataEntryMain">
+        <div class="main-inner" id="mainContent"></div>
+      </main>
+      <div class="main cte-view" id="cteView" style="display:none">
+        <div class="cte-actions">
+          <div class="cte-add">
+            <input type="text" id="cteAddId" placeholder="Employee ID" maxlength="20">
+            <button type="button" class="primary" id="cteAddBtn">Add</button>
+          </div>
+          <button type="button" class="nav-btn" id="cteImportBtn">Import from config</button>
+        </div>
+        <h2>CTE employees (OT as 3002)</h2>
+        <div id="cteTableWrap"></div>
+      </div>
+    </div>
+    <div class="status-line" id="statusLine">
+      <div class="status-line-inner" id="statusText">—</div>
+    </div>
+  </div>
+  <div class="shortcut-overlay cte-modal" id="cteModal" style="display:none" tabindex="-1">
+    <div class="shortcut-box" style="max-width:520px;width:100%;max-height:85vh;overflow:auto">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+        <h3 style="margin:0">CTE List</h3>
+        <button type="button" class="nav-btn" id="cteModalClose">Close</button>
+      </div>
+      <div class="cte-actions" style="margin-bottom:1rem">
+        <div class="cte-add">
+          <input type="text" id="cteModalAddId" placeholder="Employee ID (or paste multiple)" maxlength="500" style="width:200px">
+          <button type="button" class="primary" id="cteModalAddBtn">Add</button>
+        </div>
+        <button type="button" class="nav-btn" id="cteModalImportBtn">Import from config</button>
+      </div>
+      <p class="cte-empty" style="margin:0 0 0.5rem;font-size:0.8rem">Employees who prefer 3002 CTE for OT:</p>
+      <div id="cteModalTableWrap"></div>
+    </div>
+  </div>
+  <div class="shortcut-overlay" id="shortcutOverlay" tabindex="-1">
+    <div class="shortcut-box">
+      <h3>Keyboard shortcuts</h3>
+      <table>
+        <tr><td><kbd>n</kbd> j →</td><td>Next employee</td></tr>
+        <tr><td><kbd>p</kbd> k ←</td><td>Previous employee</td></tr>
+        <tr><td><kbd>d</kbd></td><td>Mark done & next</td></tr>
+        <tr><td><kbd>e</kbd></td><td>Export CSV</td></tr>
+        <tr><td><kbd>c</kbd></td><td>Clear progress</td></tr>
+        <tr><td><kbd>s</kbd></td><td>Start fresh (reload)</td></tr>
+        <tr><td><kbd>?</kbd></td><td>This help</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>Close</td></tr>
+      </table>
+    </div>
   </div>
   <script>
     const STORAGE_KEY = 'dos_data_entry';
-    function esc(v) { if (v == null || v === undefined) return ''; return String(v).replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$\{/g,'\${'); }
+    const CTE_STORAGE_KEY = 'dos_cte_list';
+    function esc(v) { if (v == null || v === undefined) return ''; return String(v).replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$\{/g,'\\${'); }
     let EMP = [];
     let filter = 'operators';
     let selectedIdx = 0;
     let processed = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY + '_done') || '[]'));
     let entries = JSON.parse(localStorage.getItem(STORAGE_KEY + '_entries') || '{}');
+    let cteIds = new Set(JSON.parse(localStorage.getItem(CTE_STORAGE_KEY) || '[]'));
+    let currentView = 'data';
+    let lastStatus = '';
+    let statusTimeout = null;
+
+    function setStatus(msg, persist) {
+      lastStatus = msg;
+      const el = document.getElementById('statusText');
+      if (el) el.textContent = msg;
+      if (!persist && statusTimeout) clearTimeout(statusTimeout);
+      if (!persist) statusTimeout = setTimeout(() => { if (document.getElementById('statusText')) document.getElementById('statusText').textContent = lastStatus || '—'; }, 2000);
+    }
 
     function updateScheduleDate() {
       const el = document.getElementById('dosDate');
       const d = window.DOS_DATA && window.DOS_DATA.date;
-      if (el && d) el.textContent = 'Schedule: ' + d;
+      if (el && d) el.textContent = d;
+    }
+
+    function saveCteToStorage() {
+      localStorage.setItem(CTE_STORAGE_KEY, JSON.stringify([...cteIds]));
+    }
+
+    async function loadCte() {
+      const stored = JSON.parse(localStorage.getItem(CTE_STORAGE_KEY) || '[]');
+      cteIds = new Set(stored.map(String));
+    }
+
+    async function importCteFromConfig() {
+      try {
+        const r = await fetch('/api/cte');
+        if (!r.ok) return;
+        const j = await r.json();
+        (j.ids || []).forEach(id => cteIds.add(String(id)));
+        saveCteToStorage();
+        renderCteView();
+        setStatus('Imported from config', false);
+      } catch (_) {
+        setStatus('Import failed', false);
+      }
     }
 
     async function init() {
@@ -168,6 +313,7 @@
       const data = await r.json();
       window.DOS_DATA = data;
       EMP = data.employees;
+      await loadCte();
       updateScheduleDate();
       document.getElementById('uploadScreen').classList.remove('show');
       document.getElementById('uploadScreen').style.display = 'none';
@@ -182,10 +328,7 @@
       const btn = document.getElementById('uploadBtn');
       const err = document.getElementById('uploadError');
       const input = document.getElementById('fileInput');
-      if (!input.files.length) {
-        err.textContent = 'Please select a file first.';
-        return;
-      }
+      if (!input.files.length) { err.textContent = 'Please select a file first.'; return; }
       btn.disabled = true;
       err.textContent = '';
       const fd = new FormData();
@@ -202,6 +345,7 @@
         if (j.employees) {
           window.DOS_DATA = j;
           EMP = j.employees;
+          await loadCte();
           updateScheduleDate();
           document.getElementById('uploadScreen').classList.remove('show');
           document.getElementById('uploadScreen').style.display = 'none';
@@ -243,9 +387,21 @@
       const m = Math.round(mins % 60);
       return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
     }
-    function getActualSegments(r) {
+
+    function parseLpiFromNotes(r) {
+      const text = [r.driver_notes, r.internal_notes, r.labels].filter(Boolean).join(' ').toLowerCase();
+      if (/lpi\s*cte|cte\s*lpi/.test(text)) return '3002';
+      if (/lpi\s*ot|ot\s*lpi|lpi/.test(text)) return '1013';
+      return null;
+    }
+
+    function getActualSegments(r, employeeId, overrides) {
       const ah = r.actual_hrs;
       if (ah == null || ah <= 0) return null;
+      const isCTE = cteIds.has(String(employeeId));
+      const runKey = r.paddle || '';
+      const ov = overrides && overrides[runKey] ? overrides[runKey] : {};
+
       if (ah >= 7.99 && ah <= 8.01) {
         return [{ code: '1020 REG', start: r.actual_start, end: r.actual_end, type: 'reg' }];
       }
@@ -258,18 +414,37 @@
           { code: '1000 GUAR', start: r.actual_end, end: guarEnd, type: 'guar' }
         ];
       }
+
+      const plannedEndMins = parseTime(r.planned_end);
+      const actualEndMins = parseTime(r.actual_end);
+      const hasLpi = actualEndMins > plannedEndMins;
+      const mainOTCode = ov.mainOT || (isCTE ? '3002' : '1013');
+      const lpiCodeFromNotes = parseLpiFromNotes(r);
+      const lpiCode = ov.lpiOT || lpiCodeFromNotes || (isCTE ? '3002' : '1013');
+
       const regEndMins = parseTime(r.actual_start) + 8 * 60;
       const regEnd = formatTime(regEndMins);
+
+      if (!hasLpi || mainOTCode === lpiCode) {
+        return [
+          { code: '1020 REG', start: r.actual_start, end: regEnd, type: 'reg' },
+          { code: mainOTCode === '3002' ? '3002 CTE' : '1013 OT1.5', start: regEnd, end: r.actual_end, type: mainOTCode === '3002' ? 'cte' : 'ot' }
+        ];
+      }
+
+      const lpiStart = r.planned_end;
+
       return [
         { code: '1020 REG', start: r.actual_start, end: regEnd, type: 'reg' },
-        { code: '1013 OT1.5', start: regEnd, end: r.actual_end, type: 'ot' }
+        { code: mainOTCode === '3002' ? '3002 CTE' : '1013 OT1.5', start: regEnd, end: lpiStart, type: mainOTCode === '3002' ? 'cte' : 'ot' },
+        { code: lpiCode === '3002' ? '3002 CTE' : '1013 OT1.5', start: lpiStart, end: r.actual_end, type: lpiCode === '3002' ? 'cte' : 'ot', lpi: true }
       ];
     }
 
     function renderList() {
       const list = document.getElementById('empList');
       const F = filtered();
-      list.innerHTML = F.map((e, i) => `<div class="emp-item ${e.skip ? 'skip' : ''} ${processed.has(e.employee_id) ? 'done' : ''} ${i === selectedIdx ? 'active' : ''}" data-idx="${i}" data-id="${esc(e.employee_id)}" tabindex="0" role="button"><span class="check">${processed.has(e.employee_id) ? '✓' : ''}</span><div><div>${esc(e.name)}</div><div class="emp-id" style="font-size:0.75rem;margin-top:2px">ID ${esc(e.employee_id)}${e.skip ? ' · Skip' : ''}</div></div></div>`).join('');
+      list.innerHTML = F.map((e, i) => `<div class="emp-item ${e.skip ? 'skip' : ''} ${processed.has(e.employee_id) ? 'done' : ''} ${i === selectedIdx ? 'active' : ''}" data-idx="${i}" data-id="${esc(e.employee_id)}" tabindex="0" role="button"><span class="check">${processed.has(e.employee_id) ? '✓' : ''}</span><div><div class="emp-name">${esc(e.name)}</div><div class="emp-id">${esc(e.employee_id)}${e.skip ? ' · Skip' : ''}</div></div></div>`).join('');
       list.querySelectorAll('.emp-item').forEach(el => {
         el.addEventListener('click', () => { selectEmp(parseInt(el.dataset.idx)); });
         el.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); selectEmp(parseInt(el.dataset.idx)); } });
@@ -281,26 +456,73 @@
     function renderEmp() {
       const F = filtered();
       const main = document.getElementById('mainContent');
-      if (F.length === 0) { main.innerHTML = '<div class="empty-state"><p>No employees match.</p></div>'; return; }
+      if (F.length === 0) { main.innerHTML = '<div class="empty-state"><p>No employees match.</p></div>'; setStatus('No employees', true); return; }
       const e = F[selectedIdx];
+      const empEntries = entries[e.employee_id] || {};
+      const runOverrides = empEntries.runOverrides || {};
+      const runSelections = empEntries.runSelections || {};
+      const pos = filtered().findIndex(x => x.employee_id === e.employee_id) + 1;
+      const total = filtered().length;
+      setStatus(`${pos}/${total} ${filter === 'operators' ? 'Operators' : 'All'} | ${e.name} | ${e.runs.length} runs`, true);
+
       const runsHtml = e.runs.map(r => {
-        const segments = getActualSegments(r);
+        const segments = getActualSegments(r, e.employee_id, runOverrides);
         const noteBanners = [];
-        if (r.driver_notes) noteBanners.push(`<div class="note-banner"><div class="note-banner-label">Driver Notes:</div><div class="note-banner-content">${esc(r.driver_notes)}</div></div>`);
-        if (r.internal_notes) noteBanners.push(`<div class="note-banner"><div class="note-banner-label">Internal Notes:</div><div class="note-banner-content">${esc(r.internal_notes)}</div></div>`);
-        if (r.labels) noteBanners.push(`<div class="note-banner"><div class="note-banner-label">Labels:</div><div class="note-banner-content">${esc(r.labels)}</div></div>`);
+        if (r.driver_notes) noteBanners.push(`<div class="note-banner"><div class="note-banner-label">Driver Notes</div>${esc(r.driver_notes)}</div>`);
+        if (r.internal_notes) noteBanners.push(`<div class="note-banner"><div class="note-banner-label">Internal Notes</div>${esc(r.internal_notes)}</div>`);
+        if (r.labels) noteBanners.push(`<div class="note-banner"><div class="note-banner-label">Labels</div>${esc(r.labels)}</div>`);
+
         let actualHtml;
         if (segments && segments.length > 0) {
-          actualHtml = '<div class="actual-segments">' + segments.map(s => `<div class="segment-line ${s.type}"><span class="seg-code">${esc(s.code)}</span>${esc(s.start)} – ${esc(s.end)}</div>`).join('') + '<div class="segment-total">' + hrsToHMM(r.actual_hrs) + '</div></div>';
+          const segHtml = segments.map(s => {
+            const cls = s.lpi ? `segment-line ${s.type} segment-lpi` : `segment-line ${s.type}`;
+            return `<div class="${cls}"><span class="seg-code">${esc(s.code)}</span>${esc(s.start)} – ${esc(s.end)}</div>`;
+          }).join('');
+          actualHtml = '<div class="actual-segments">' + segHtml + '<div class="segment-total">' + hrsToHMM(r.actual_hrs) + '</div></div>';
         } else {
           const needsG = isShort(r.planned_hrs, r.actual_hrs);
           const needsOT = isOT(r.planned_hrs, r.actual_hrs);
           actualHtml = `<div class="run-group-time">${esc(r.actual_start)} – ${esc(r.actual_end)}</div><div class="run-group-hrs ${needsOT ? 'ot' : 'hrs'}">${formatHrs(r.actual_hrs)} hrs${needsG ? ' ⚠ Guarantee' : ''}${needsOT ? ' OT' : ''}</div>`;
         }
-        return `<div class="run-card"><div class="run-header"><span class="run-paddle">${esc(r.paddle)}</span>${r.block ? '<span class="run-block">Block ' + esc(r.block) + '</span>' : ''}</div><div class="run-times"><div class="run-group"><div class="run-group-label">Planned</div><div class="run-group-time">${esc(r.planned_start)} – ${esc(r.planned_end)}</div><div class="run-group-hrs hrs">${formatHrs(r.planned_hrs)} hrs</div></div><div class="run-group"><div class="run-group-label">Actual</div>${actualHtml}</div></div>${r.vehicle ? '<div class="run-time" style="margin-top:0.5rem"><span class="run-time-label">Vehicle</span><span class="run-time-val">' + esc(r.vehicle) + '</span></div>' : ''}${noteBanners.join('')}</div>`;
+
+        const isCTE = cteIds.has(String(e.employee_id));
+        const hasLpi = r.actual_hrs > 8 && r.planned_end && r.actual_end && parseTime(r.actual_end) > parseTime(r.planned_end);
+        const mainOT = (runOverrides[r.paddle] && runOverrides[r.paddle].mainOT) || (isCTE ? '3002' : '1013');
+        const lpiOT = (runOverrides[r.paddle] && runOverrides[r.paddle].lpiOT) || parseLpiFromNotes(r) || (isCTE ? '3002' : '1013');
+
+        let overrideHtml = '';
+        if (!e.skip && r.actual_hrs > 8) {
+          overrideHtml = `<div class="run-overrides">
+            <label>Main OT:</label>
+            <select data-paddle="${esc(r.paddle)}" data-field="mainOT" class="run-ot-select">
+              <option value="1013" ${mainOT === '1013' ? 'selected' : ''}>1013 OT1.5</option>
+              <option value="3002" ${mainOT === '3002' ? 'selected' : ''}>3002 CTE</option>
+            </select>
+            ${hasLpi ? `<label>LPI:</label><select data-paddle="${esc(r.paddle)}" data-field="lpiOT" class="run-ot-select"><option value="1013" ${lpiOT === '1013' ? 'selected' : ''}>1013 OT1.5</option><option value="3002" ${lpiOT === '3002' ? 'selected' : ''}>3002 CTE</option></select>` : ''}
+          </div>`;
+        }
+
+        const sel = runSelections[r.paddle] || {};
+        const includeRun = sel.use !== false;
+        const plannedOrActual = sel.plannedOrActual || 'actual';
+        const laborCode = sel.laborCode || '';
+        const isLeaveRun = /FMLA|SICK|VAC|PTO|LEAVE|LWP/i.test(r.paddle || '');
+        const suggestLabor = (r.paddle || '').toUpperCase().includes('FMLA') ? '2024' : '';
+        const runSelectHtml = `<div class="run-select ${includeRun ? '' : 'voided'}" data-paddle="${esc(r.paddle)}">
+          <label class="run-select-include" style="cursor:pointer;display:flex;align-items:center;gap:0.5rem;font-size:0.9rem">
+            <input type="checkbox" class="run-include-cb" data-paddle="${esc(r.paddle)}" ${includeRun ? 'checked' : ''}>
+            <span class="run-select-label">Include for export</span>
+          </label>
+          ${includeRun ? `<div class="run-select-radio" style="margin-top:0.4rem"><label><input type="radio" name="run-pt-${esc(e.employee_id)}-${esc(r.paddle)}" value="planned" ${plannedOrActual === 'planned' ? 'checked' : ''}> Planned</label><label><input type="radio" name="run-pt-${esc(e.employee_id)}-${esc(r.paddle)}" value="actual" ${plannedOrActual === 'actual' ? 'checked' : ''}> Actual</label></div>${isLeaveRun ? `<label>Labor:</label><input type="text" class="run-labor-input" data-paddle="${esc(r.paddle)}" placeholder="${suggestLabor || 'e.g. 2024'}" value="${esc(laborCode)}" maxlength="10" style="width:70px" title="Leave code">` : `<span class="run-select-label" style="font-size:0.7rem;opacity:0.8">→ 1020,1000,1013,3002 from segments</span>`}` : ''}
+        </div>`;
+
+        return `<div class="run-card"><div class="run-header"><span class="run-paddle">${esc(r.paddle)}</span>${r.block ? '<span class="run-block">Block ' + esc(r.block) + '</span>' : ''}</div><div class="run-times"><div class="run-group"><div class="run-group-label">Planned</div><div class="run-group-time">${esc(r.planned_start)} – ${esc(r.planned_end)}</div><div class="run-group-hrs hrs">${formatHrs(r.planned_hrs)} hrs</div></div><div class="run-group"><div class="run-group-label">Actual</div>${actualHtml}</div></div>${r.vehicle ? '<div style="margin-top:0.4rem;font-size:0.8rem;color:var(--text-muted)">Vehicle: ' + esc(r.vehicle) + '</div>' : ''}${overrideHtml}${runSelectHtml}${noteBanners.join('')}</div>`;
       }).join('');
 
-      main.innerHTML = `<div class="emp-card"><div class="emp-header"><div><div class="emp-name">${esc(e.name)}</div><div class="emp-id">Employee ID: ${esc(e.employee_id)}</div></div><span class="badge ${e.employee_type}">${e.skip ? 'Skip (Supervisor)' : 'Operator'}</span></div><div class="runs">${runsHtml}</div>${!e.skip ? '<div class="entry-section"><h4>Notes</h4><div class="entry-row"><label>Notes</label><input type="text" placeholder="Optional notes for this employee..." id="entryNotes"></div></div>' : ''}<div class="nav-bar"><button class="nav-btn" id="btnPrev">← Previous</button><div class="progress">${filtered().findIndex(x => x.employee_id === e.employee_id) + 1} / ${filtered().length}</div><div>${!e.skip ? '<button class="nav-btn primary" id="btnDone">Mark Done & Next</button>' : ''}<button class="nav-btn" id="btnNext">Next →</button></div></div></div>`;
+      const badgeClass = e.skip ? 'supervisor' : (cteIds.has(String(e.employee_id)) ? 'cte' : 'operator');
+      const badgeText = e.skip ? 'Skip' : (cteIds.has(String(e.employee_id)) ? 'CTE' : 'Op');
+
+      main.innerHTML = `<div class="emp-card"><div class="emp-header"><div><div class="emp-name-lg">${esc(e.name)}</div><div class="emp-id-lg">${esc(e.employee_id)}</div></div><span class="badge ${badgeClass}">${badgeText}</span></div><div class="runs">${runsHtml}</div>${!e.skip ? '<div class="entry-section"><h4>Notes</h4><div class="entry-row"><label>Notes</label><input type="text" placeholder="Optional notes..." id="entryNotes"></div></div>' : ''}<div class="nav-mini"><span class="progress">${pos} / ${total}</span><div class="btns"><button class="nav-btn" id="btnPrev">← Prev</button>${!e.skip ? '<button class="nav-btn primary" id="btnDone">Done & Next</button>' : ''}<button class="nav-btn" id="btnNext">Next →</button></div></div></div>`;
 
       const id = e.employee_id;
       const notesInput = document.getElementById('entryNotes');
@@ -308,43 +530,309 @@
 
       function saveEntry() {
         if (e.skip) return;
-        entries[id] = { notes: notesInput?.value || '' };
+        const ro = {};
+        main.querySelectorAll('.run-ot-select').forEach(sel => {
+          const p = sel.dataset.paddle;
+          if (!ro[p]) ro[p] = {};
+          ro[p][sel.dataset.field] = sel.value;
+        });
+        const rs = {};
+        main.querySelectorAll('.run-select').forEach(el => {
+          const p = el.dataset.paddle;
+          const includeCb = el.querySelector('.run-include-cb');
+          const use = includeCb && includeCb.checked;
+          const ptRadio = el.querySelector('input[value="planned"]');
+          const plannedOrActual = ptRadio && ptRadio.checked ? 'planned' : 'actual';
+          const laborInput = el.querySelector('.run-labor-input');
+          rs[p] = { use, plannedOrActual, laborCode: (use && laborInput ? laborInput.value.trim() : '') || '' };
+        });
+        const hasOverrides = Object.keys(ro).length > 0;
+        entries[id] = {
+          notes: notesInput?.value || '',
+          runOverrides: hasOverrides ? ro : (entries[id] && entries[id].runOverrides) || {},
+          runSelections: rs
+        };
         localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries));
       }
 
       document.getElementById('btnPrev').onclick = () => { saveEntry(); nav(-1); };
       document.getElementById('btnNext').onclick = () => { saveEntry(); nav(1); };
-      document.getElementById('btnDone')?.addEventListener('click', () => { saveEntry(); processed.add(id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); nav(1); });
+      document.getElementById('btnDone')?.addEventListener('click', () => { saveEntry(); processed.add(id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Marked done', false); nav(1); });
+
+      main.querySelectorAll('.run-ot-select').forEach(sel => {
+        sel.addEventListener('change', () => { saveEntry(); renderEmp(); });
+      });
+      main.querySelectorAll('.run-select input').forEach(inp => {
+        inp.addEventListener('change', () => { saveEntry(); renderEmp(); });
+      });
+      main.querySelectorAll('.run-labor-input').forEach(inp => {
+        inp.addEventListener('input', () => saveEntry());
+        inp.addEventListener('blur', () => saveEntry());
+      });
     }
 
     function selectEmp(idx) { selectedIdx = idx; renderList(); renderEmp(); }
     function nav(delta) { const F = filtered(); selectedIdx = (selectedIdx + delta + F.length) % F.length; renderList(); renderEmp(); }
 
-    function bindApp() {
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        if (btn.id === 'clearProgress' || btn.id === 'startFresh' || btn.id === 'exportBtn') return;
-        btn.onclick = () => { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); filter = btn.dataset.filter; selectedIdx = 0; renderList(); renderEmp(); };
+    function renderCteTable(wrapEl) {
+      const wrap = wrapEl || document.getElementById('cteTableWrap');
+      if (!wrap) return;
+      const ids = [...cteIds].sort();
+      function getName(id) {
+        const e = EMP.find(x => String(x.employee_id) === String(id));
+        return e ? e.name : '—';
+      }
+      if (ids.length === 0) {
+        wrap.innerHTML = '<p class="cte-empty">No CTE employees. Add IDs above or import from config.</p>';
+        return;
+      }
+      wrap.innerHTML = '<table class="cte-table"><thead><tr><th>Employee ID</th><th>Name</th><th></th></tr></thead><tbody>' +
+        ids.map(id => `<tr><td>${esc(id)}</td><td>${esc(getName(id))}</td><td><button type="button" class="del-btn" data-id="${esc(id)}">Delete</button></td></tr>`).join('') +
+        '</tbody></table>';
+      wrap.querySelectorAll('.del-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          cteIds.delete(btn.dataset.id);
+          saveCteToStorage();
+          renderCteTable(wrap);
+          renderCteTable(document.getElementById('cteTableWrap'));
+          if (currentView === 'data') renderEmp();
+          setStatus('Removed from CTE list', false);
+        });
       });
-      document.getElementById('clearProgress').onclick = () => {
-        if (confirm('Clear progress and notes? (Keeps current data, use when starting a new day with same file)')) { processed.clear(); entries = {}; localStorage.removeItem(STORAGE_KEY + '_done'); localStorage.removeItem(STORAGE_KEY + '_entries'); renderList(); renderEmp(); }
-      };
-      document.getElementById('startFresh').onclick = async () => {
-        if (!confirm('Start completely fresh? This clears all data and progress. You\'ll need to upload a new Excel file.')) return;
-        try {
-          await fetch('/api/clear', { method: 'POST' });
-        } catch (e) {}
-        processed.clear(); entries = {};
-        localStorage.removeItem(STORAGE_KEY + '_done'); localStorage.removeItem(STORAGE_KEY + '_entries');
-        location.reload();
-      };
-      document.getElementById('exportBtn').onclick = () => {
-        const rows = [['employee_id','name','notes']];
-        EMP.filter(e => !e.skip && entries[e.employee_id]).forEach(e => { const x = entries[e.employee_id]; rows.push([e.employee_id, e.name, x.notes || '']); });
-        const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n');
-        const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = 'dos_entries_' + new Date().toISOString().slice(0,10) + '.csv'; a.click();
-      };
     }
 
+    function renderCteView() {
+      renderCteTable(document.getElementById('cteTableWrap'));
+    }
+
+    function showCteModal() {
+      document.getElementById('cteModal').style.display = 'flex';
+      renderCteTable(document.getElementById('cteModalTableWrap'));
+      document.getElementById('cteModalAddId').value = '';
+      document.getElementById('cteModalAddId').focus();
+    }
+
+    function hideCteModal() {
+      document.getElementById('cteModal').style.display = 'none';
+    }
+
+    function switchView(view) {
+      currentView = view;
+      document.querySelectorAll('.view-tab').forEach(t => t.classList.toggle('active', t.dataset.view === view));
+      const sidebar = document.getElementById('sidebar');
+      const dataMain = document.getElementById('dataEntryMain');
+      const cteView = document.getElementById('cteView');
+      if (view === 'data') {
+        sidebar.style.display = '';
+        dataMain.style.display = '';
+        cteView.style.display = 'none';
+        renderList();
+        renderEmp();
+      } else {
+        sidebar.style.display = 'none';
+        dataMain.style.display = 'none';
+        cteView.style.display = 'block';
+        renderCteView();
+        setStatus('CTE List', true);
+      }
+    }
+
+    function formatDateForTcp(d) {
+      if (!d) return '';
+      const str = String(d).trim();
+      const m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (m) return parseInt(m[2], 10) + '/' + parseInt(m[3], 10) + '/' + m[1];
+      const m2 = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      if (m2) return parseInt(m2[1], 10) + '/' + parseInt(m2[2], 10) + '/' + m2[3];
+      return str;
+    }
+
+    function segmentCodeToLabor(code) {
+      if (!code) return '';
+      if (code.startsWith('1020')) return '1020';
+      if (code.startsWith('1000')) return '1000';
+      if (code.startsWith('1013')) return '1013';
+      if (code.startsWith('3002')) return '3002';
+      return code.split(/\s/)[0] || '';
+    }
+
+    function doExport() {
+      const scheduleDate = formatDateForTcp(window.DOS_DATA && window.DOS_DATA.date) || '';
+      const tcpRows = [['employee_id','date_in','date_out','laborcode','time_in','time_out']];
+      const legacyRows = [['employee_id','name','notes']];
+      let hasTcp = false;
+      EMP.filter(e => !e.skip).forEach(emp => {
+        const x = entries[emp.employee_id] || {};
+        const rs = x.runSelections || {};
+        const runOverrides = x.runOverrides || {};
+        const useRuns = emp.runs.filter(r => (rs[r.paddle] || {}).use !== false);
+        useRuns.forEach(r => {
+          const sel = rs[r.paddle] || {};
+          const usePlanned = sel.plannedOrActual === 'planned';
+          const runLabor = (sel.laborCode || '').trim();
+          const isLeave = /FMLA|SICK|VAC|PTO|LEAVE|LWP/i.test(r.paddle || '');
+
+          if (isLeave && runLabor) {
+            const timeIn = usePlanned ? (r.planned_start || '') : (r.actual_start || '');
+            const timeOut = usePlanned ? (r.planned_end || '') : (r.actual_end || '');
+            if (timeIn && timeOut) {
+              tcpRows.push([emp.employee_id, scheduleDate, scheduleDate, runLabor, timeIn, timeOut]);
+              hasTcp = true;
+            }
+          } else if (usePlanned) {
+            const timeIn = r.planned_start || '';
+            const timeOut = r.planned_end || '';
+            if (timeIn && timeOut) {
+              tcpRows.push([emp.employee_id, scheduleDate, scheduleDate, '1020', timeIn, timeOut]);
+              hasTcp = true;
+            }
+          } else {
+            const segments = getActualSegments(r, emp.employee_id, runOverrides);
+            if (segments && segments.length > 0) {
+              segments.forEach(seg => {
+                const labor = segmentCodeToLabor(seg.code);
+                if (labor && seg.start && seg.end) {
+                  tcpRows.push([emp.employee_id, scheduleDate, scheduleDate, labor, seg.start, seg.end]);
+                  hasTcp = true;
+                }
+              });
+            }
+          }
+        });
+        if (x.notes !== undefined) legacyRows.push([emp.employee_id, emp.name, x.notes || '']);
+      });
+      const csv = hasTcp ? tcpRows.map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n')
+        : legacyRows.map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n');
+      const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = 'dos_tcp_' + new Date().toISOString().slice(0,10) + '.csv'; a.click();
+      setStatus('Exported ' + (hasTcp ? tcpRows.length - 1 + ' TCP rows' : 'CSV'), false);
+    }
+
+    function doClear() {
+      if (!confirm('Clear progress and notes? (Keeps current data)')) return;
+      processed.clear(); entries = {};
+      localStorage.removeItem(STORAGE_KEY + '_done'); localStorage.removeItem(STORAGE_KEY + '_entries');
+      renderList(); renderEmp();
+      setStatus('Cleared', false);
+    }
+
+    function doStartFresh() {
+      if (!confirm('Start completely fresh? You\'ll need to upload a new Excel file.')) return;
+      try { fetch('/api/clear', { method: 'POST' }); } catch (_) {}
+      processed.clear(); entries = {};
+      localStorage.removeItem(STORAGE_KEY + '_done'); localStorage.removeItem(STORAGE_KEY + '_entries');
+      location.reload();
+    }
+
+    function bindApp() {
+      document.querySelectorAll('.view-tab').forEach(btn => {
+        btn.addEventListener('click', () => switchView(btn.dataset.view));
+      });
+      document.getElementById('cteAddBtn').addEventListener('click', () => {
+        const input = document.getElementById('cteAddId');
+        const raw = (input.value || '').trim();
+        if (!raw) return;
+        const ids = raw.split(/[\s,;\n]+/).map(s => s.trim()).filter(Boolean);
+        ids.forEach(id => cteIds.add(id));
+        saveCteToStorage();
+        input.value = '';
+        renderCteView();
+        if (currentView === 'data') renderEmp();
+        setStatus(ids.length > 1 ? 'Added ' + ids.length + ' IDs' : 'Added ' + ids[0], false);
+      });
+      document.getElementById('cteAddId').addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter') document.getElementById('cteAddBtn').click();
+      });
+      document.getElementById('cteImportBtn').addEventListener('click', () => importCteFromConfig());
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        if (!btn.dataset.filter) return;
+        btn.onclick = () => { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); filter = btn.dataset.filter; selectedIdx = 0; renderList(); renderEmp(); };
+      });
+
+      const cmdBar = document.getElementById('cmdBar');
+      const cmdInput = document.getElementById('cmdInput');
+      const shortcutOverlay = document.getElementById('shortcutOverlay');
+
+      function isFormFocused() {
+        const t = document.activeElement;
+        return t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT');
+      }
+
+      function handleKey(ev) {
+        if (ev.key === 'Escape') {
+          cmdInput.blur(); shortcutOverlay.classList.remove('show'); cmdBar.setAttribute('data-focused', 'false'); return;
+        }
+        if (shortcutOverlay.classList.contains('show')) {
+          if (ev.key === '?') shortcutOverlay.classList.remove('show');
+          return;
+        }
+        if (isFormFocused()) return;
+
+        const k = ev.key.toLowerCase();
+        if (k === 'n' || k === 'j' || ev.key === 'ArrowRight') { ev.preventDefault(); nav(1); return; }
+        if (k === 'p' || k === 'k' || ev.key === 'ArrowLeft') { ev.preventDefault(); nav(-1); return; }
+        if (k === 'd') { ev.preventDefault(); const e = filtered()[selectedIdx]; if (e && !e.skip) { const id = e.employee_id; const notesInput = document.getElementById('entryNotes'); if (notesInput) { entries[id] = entries[id] || {}; entries[id].notes = notesInput.value; localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries)); } processed.add(id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Done & next', false); nav(1); } return; }
+        if (k === 'e') { ev.preventDefault(); doExport(); return; }
+        if (k === 'c') { ev.preventDefault(); doClear(); return; }
+        if (k === 's') { ev.preventDefault(); doStartFresh(); return; }
+        if (k === '?') { ev.preventDefault(); shortcutOverlay.classList.add('show'); shortcutOverlay.focus(); return; }
+      }
+
+      document.addEventListener('keydown', handleKey);
+      cmdInput.addEventListener('keydown', (ev) => {
+        if (ev.key === 'Escape') { ev.preventDefault(); cmdInput.blur(); cmdInput.value = ''; return; }
+        const k = ev.key.toLowerCase();
+        if (k === 'n' || k === 'p' || k === 'd' || k === 'e' || k === 'c' || k === 's' || k === '?') {
+          ev.preventDefault();
+          handleKey(ev);
+          cmdInput.value = '';
+        }
+        if (ev.key === 'Enter') {
+          ev.preventDefault();
+          const v = (cmdInput.value || '').trim().toLowerCase();
+          cmdInput.value = '';
+          if (v === 'n' || v === 'next') nav(1);
+          else if (v === 'p' || v === 'prev') nav(-1);
+          else if (v === 'd' || v === 'done') { const e = filtered()[selectedIdx]; if (e && !e.skip) { const id = e.employee_id; const notesInput = document.getElementById('entryNotes'); if (notesInput) { entries[id] = entries[id] || {}; entries[id].notes = notesInput.value; localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries)); } processed.add(id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Done & next', false); nav(1); } }
+          else if (v === 'e' || v === 'export') doExport();
+          else if (v === 'c' || v === 'clear') doClear();
+          else if (v === 's' || v === 'fresh') doStartFresh();
+          else if (v === '?' || v === 'help') shortcutOverlay.classList.add('show');
+        }
+      });
+      cmdInput.addEventListener('focus', () => cmdBar.setAttribute('data-focused', 'true'));
+      cmdInput.addEventListener('blur', () => cmdBar.setAttribute('data-focused', 'false'));
+      shortcutOverlay.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') shortcutOverlay.classList.remove('show'); });
+      shortcutOverlay.addEventListener('click', (ev) => { if (ev.target === shortcutOverlay) shortcutOverlay.classList.remove('show'); });
+
+    }
+
+    function bindCteModal() {
+      document.getElementById('uploadCteLink')?.addEventListener('click', (ev) => { ev.preventDefault(); loadCte(); showCteModal(); });
+      document.getElementById('cteModalClose').addEventListener('click', () => hideCteModal());
+      document.getElementById('cteModal').addEventListener('click', (ev) => { if (ev.target.id === 'cteModal') hideCteModal(); });
+      document.getElementById('cteModal').addEventListener('keydown', (ev) => { if (ev.key === 'Escape') hideCteModal(); });
+      document.getElementById('cteModalAddBtn').addEventListener('click', () => {
+        const input = document.getElementById('cteModalAddId');
+        const raw = (input.value || '').trim();
+        if (!raw) return;
+        const ids = raw.split(/[\s,;\n]+/).map(s => s.trim()).filter(Boolean);
+        ids.forEach(id => cteIds.add(id));
+        saveCteToStorage();
+        input.value = '';
+        renderCteTable(document.getElementById('cteModalTableWrap'));
+        input.focus();
+      });
+      document.getElementById('cteModalAddId').addEventListener('keydown', (ev) => {
+        if (ev.key === 'Enter') document.getElementById('cteModalAddBtn').click();
+      });
+      document.getElementById('cteModalImportBtn').addEventListener('click', async () => {
+        await importCteFromConfig();
+        renderCteTable(document.getElementById('cteModalTableWrap'));
+      });
+    }
+
+    loadCte();
+    bindCteModal();
     init();
   </script>
 </body>

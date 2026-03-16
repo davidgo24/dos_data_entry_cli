@@ -83,6 +83,42 @@ def health():
     return jsonify({"status": "ok"})
 
 
+# CTE list: employee IDs who prefer 3002 over 1013 for OT
+_cte_session: dict[str, list[str]] = {}  # uid -> list of employee_ids
+CONFIG_CTE_PATH = Path(__file__).resolve().parent / "config_cte.json"
+
+
+@app.route("/api/cte", methods=["GET"])
+def api_cte_get():
+    """Return CTE list (from config file + session upload)."""
+    uid = _uid()
+    ids = set()
+    if CONFIG_CTE_PATH.exists():
+        try:
+            import json
+            with open(CONFIG_CTE_PATH, encoding="utf-8") as f:
+                data = json.load(f)
+            ids.update(str(x) for x in (data if isinstance(data, list) else data.get("ids", data.get("employee_ids", []))))
+        except Exception:
+            pass
+    ids.update(_cte_session.get(uid, []))
+    return jsonify({"ids": list(ids)})
+
+
+@app.route("/api/cte", methods=["POST"])
+def api_cte_post():
+    """Upload CTE list (employee IDs), merge with session."""
+    uid = _uid()
+    try:
+        data = request.get_json(force=True, silent=True) or {}
+        ids = data.get("ids", data.get("employee_ids", data if isinstance(data, list) else []))
+        ids = [str(x).strip() for x in ids if x]
+        _cte_session[uid] = list(set(ids))
+        return jsonify({"ok": True, "count": len(_cte_session[uid])})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)

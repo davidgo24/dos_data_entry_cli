@@ -1,25 +1,17 @@
-# DOS Data Entry — Transit
+# DOS Data Entry CLI
 
-A simple UI for transit department DOS (Days of Service) data entry, replacing cramped Excel tables with a card-based, one-employee-at-a-time flow.
+Keyboard-first UI for transit department DOS (Days of Service) data entry. Card-based flow with segment export for TimeClockPlus.
 
 ## Deploy to Railway
 
-Connect this repo in [Railway](https://railway.app) — it will auto-detect Python and deploy. On first visit, upload your DOS Excel (.xlsx) to get started.
+1. Push this repo to GitHub and connect it in [Railway](https://railway.app)
+2. Railway auto-detects Python (Procfile, nixpacks.toml)
+3. Set `SECRET_KEY` in Railway Variables: any random string (e.g. `openssl rand -hex 24`)
+4. Deploy — your app URL will be live
 
-**Multi-user:** Each visitor gets an isolated session. Colleagues can use the app simultaneously from their own desktops, each uploading and working with their own file independently. Set `SECRET_KEY` in Railway env vars for production (any random string).
-
-**Supported formats:**
-- **Standard** — Excel with "Table 1" sheet and SUPERVISORS/ABSENT sections
-- **Raw report** — DOS_Report_*.xlsx with date-named sheet (e.g. 2026-03-11), flat list. Check "Raw report format" when uploading.
+**Multi-user:** Each visitor gets an isolated session. Coworkers use the app from their own computers independently — each uploads their own DOS file, manages their own CTE list, and exports their own entries. No shared state between users.
 
 ## Local development
-
-```bash
-# Quick start (extract + open static UI)
-./run.sh ~/Downloads/3.9.26.xlsx
-```
-
-Or run the web app locally:
 
 ```bash
 source .venv/bin/activate
@@ -28,30 +20,39 @@ python app.py
 # Open http://localhost:5000
 ```
 
-## What it does
+Or extract + open static UI (no server):
 
-1. **Buckets employees** — Operators vs supervisors (supervisors are marked **Skip**)
-2. **Card view** — Each employee’s runs shown as cards instead of dense table rows
-3. **Planned vs actual** — Highlights guarantee runs (<8 hrs) and overtime (>8 hrs)
-4. **Data entry fields** — Guarantee hrs, OT type (CTE/LPI), notes
-5. **Progress** — Mark done, clear progress when starting a new day
-6. **Export** — Download entries as CSV for reference during TimeClockPlus entry
+```bash
+./run.sh ~/Downloads/your-dos.xlsx
+```
+
+## Features
+
+- **Segment logic** — 1–3 segments per run: 1020 REG, 1000 GUAR, 1013 OT1.5, 3002 CTE; LPI split when `actual_end > planned_end`
+- **Per-run selection** — Include checkbox per run; Planned vs Actual; labor code for leave (FMLA, SICK, etc.)
+- **TCP export** — One row per segment: `employee_id, date_in, date_out, laborcode, time_in, time_out`
+- **CTE list** — In-app tab or Manage CTE list (upload screen); add/delete employee IDs who prefer 3002 for OT
+- **Keyboard-first** — `n` next, `p` prev, `d` done, `e` export, `c` clear, `s` fresh, `?` help
+- **Command bar** — Hints + typed commands
+
+## Supported Excel formats
+
+- **Standard** — "Table 1" sheet with SUPERVISORS/ABSENT sections
+- **Raw report** — DOS_Report_*.xlsx with date-named sheet; check "Raw report format" when uploading
 
 ## Files
 
-- `app.py` — Flask app for web/Railway deployment
-- `extract_dos_data.py` — Extracts run data from Excel
-- `static/index.html` — Data entry UI (served by app)
-- `bucket_employees.py` — Standalone bucketing script
-- `index.html` — Local static build (embedded data, no server)
+- `app.py` — Flask app
+- `static/index.html` — Data entry UI
+- `config_cte.json` — Optional: employee IDs for 3002 CTE (project-level); in-app CTE tab overrides
+- `extract_dos_data.py` — Excel extraction
 
 ## Data entry flow
 
-1. Use **Operators** filter (default) to hide supervisors.
-2. Click an employee in the list or use Previous/Next.
-3. Review each run card (paddle, block, hours, notes).
-4. Enter guarantee hrs, OT type, notes as needed.
-5. Click **Mark Done & Next**.
-6. Use **Export** to download a CSV of your entries.
+1. Upload DOS Excel
+2. Op / All filter; navigate with `n`/`p` or clicks
+3. Per run: **Include** if using for export; Planned/Actual; Labor (for leave runs)
+4. `d` or Done & Next to mark complete
+5. `e` to export TCP CSV
 
-Progress and entries are stored in browser `localStorage` — use **Clear** when starting a new day.
+Progress and entries are in browser `localStorage`; `c` clears when starting a new day.
