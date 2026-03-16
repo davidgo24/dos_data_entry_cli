@@ -311,7 +311,7 @@
     let EMP = [];
     let filter = 'operators';
     let selectedIdx = 0;
-    let processed = new Set(JSON.parse(localStorage.getItem(STORAGE_KEY + '_done') || '[]'));
+    let processed = new Set((JSON.parse(localStorage.getItem(STORAGE_KEY + '_done') || '[]') || []).map(String));
     let entries = JSON.parse(localStorage.getItem(STORAGE_KEY + '_entries') || '{}');
     let cteIds = new Set(JSON.parse(localStorage.getItem(CTE_STORAGE_KEY) || '[]'));
     let supervisorIds = new Set(JSON.parse(localStorage.getItem(SUPERVISORS_STORAGE_KEY) || '[]'));
@@ -526,7 +526,8 @@
       list.innerHTML = F.map((e, i) => {
         const isCte = cteIds.has(String(e.employee_id));
         const badgeHtml = isCte ? `<span class="list-badge cte">CTE</span>` : '';
-        return `<div class="emp-item ${isSupervisor(e) ? 'skip' : ''} ${processed.has(e.employee_id) ? 'done' : ''} ${i === selectedIdx ? 'active' : ''}" data-idx="${i}" data-id="${esc(e.employee_id)}" tabindex="0" role="button"><span class="check" data-idx="${i}" data-id="${esc(e.employee_id)}" title="Click to toggle done">${processed.has(e.employee_id) ? '✓' : ''}</span><div><div class="emp-name">${esc(e.name)}</div><div class="emp-id">${esc(e.employee_id)}</div></div>${badgeHtml}</div>`;
+        const eid = String(e.employee_id);
+        return `<div class="emp-item ${isSupervisor(e) ? 'skip' : ''} ${processed.has(eid) ? 'done' : ''} ${i === selectedIdx ? 'active' : ''}" data-idx="${i}" data-id="${esc(e.employee_id)}" tabindex="0" role="button"><span class="check" data-idx="${i}" data-id="${esc(e.employee_id)}" title="Click to toggle done">${processed.has(eid) ? '✓' : ''}</span><div><div class="emp-name">${esc(e.name)}</div><div class="emp-id">${esc(e.employee_id)}</div></div>${badgeHtml}</div>`;
       }).join('');
       list.querySelectorAll('.emp-item').forEach(el => {
         el.addEventListener('click', (ev) => {
@@ -535,14 +536,15 @@
             const id = ev.target.dataset.id;
             const emp = EMP.find(x => String(x.employee_id) === id);
             if (!id || isSupervisor(emp)) return;
-            if (processed.has(id)) { processed.delete(id); setStatus('Undone', false); }
+            const sid = String(id);
+            if (processed.has(sid)) { processed.delete(sid); setStatus('Undone', false); }
             else {
               const cur = filtered()[selectedIdx];
               if (cur && String(cur.employee_id) === id) {
                 const notesInput = document.getElementById('entryNotes');
                 if (notesInput) { entries[id] = entries[id] || {}; entries[id].notes = notesInput.value; localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries)); }
               }
-              processed.add(id); setStatus('Marked done', false);
+              processed.add(sid); setStatus('Marked done', false);
             }
             localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed]));
             renderList();
@@ -722,7 +724,7 @@
 
       document.getElementById('btnPrev').onclick = () => { saveEntry(); nav(-1); };
       document.getElementById('btnNext').onclick = () => { saveEntry(); nav(1); };
-      document.getElementById('btnDone')?.addEventListener('click', () => { saveEntry(); processed.add(id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Marked done', false); nav(1); });
+      document.getElementById('btnDone')?.addEventListener('click', () => { saveEntry(); processed.add(String(id)); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Marked done', false); nav(1); });
 
       main.querySelectorAll('.run-ot-select').forEach(sel => {
         sel.addEventListener('change', () => { saveEntry(); renderEmp(); });
@@ -938,7 +940,7 @@
       const tcpRows = [['employee_id','date_in','date_out','laborcode','time_in','time_out']];
       const legacyRows = [['employee_id','name','notes']];
       let hasTcp = false;
-      const empsToExport = doneOnly ? EMP.filter(e => !isSupervisor(e) && processed.has(e.employee_id)) : EMP.filter(e => !isSupervisor(e));
+      const empsToExport = doneOnly ? EMP.filter(e => !isSupervisor(e) && processed.has(String(e.employee_id))) : EMP.filter(e => !isSupervisor(e));
       empsToExport.forEach(emp => {
         const x = entries[emp.employee_id] || {};
         const rs = x.runSelections || {};
@@ -1025,9 +1027,13 @@
 
     function doClear() {
       if (!confirm('Clear progress and notes? (Keeps current data)')) return;
-      processed.clear(); entries = {};
-      localStorage.removeItem(STORAGE_KEY + '_done'); localStorage.removeItem(STORAGE_KEY + '_entries');
-      renderList(); renderEmp();
+      processed.clear();
+      entries = {};
+      localStorage.setItem(STORAGE_KEY + '_done', '[]');
+      localStorage.removeItem(STORAGE_KEY + '_entries');
+      if (currentView !== 'data') switchView('data');
+      renderList();
+      renderEmp();
       setStatus('Cleared', false);
     }
 
@@ -1102,7 +1108,7 @@
         const k = ev.key.toLowerCase();
         if (k === 'n' || k === 'j' || ev.key === 'ArrowRight') { ev.preventDefault(); nav(1); return; }
         if (k === 'p' || k === 'k' || ev.key === 'ArrowLeft') { ev.preventDefault(); nav(-1); return; }
-        if (k === 'd') { ev.preventDefault(); const e = filtered()[selectedIdx]; if (e && !isSupervisor(e)) { const id = e.employee_id; if (ev.shiftKey) { processed.delete(id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Undone', false); renderList(); } else { const notesInput = document.getElementById('entryNotes'); if (notesInput) { entries[id] = entries[id] || {}; entries[id].notes = notesInput.value; localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries)); } processed.add(id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Done & next', false); nav(1); } } return; }
+        if (k === 'd') { ev.preventDefault(); const e = filtered()[selectedIdx]; if (e && !isSupervisor(e)) { const id = String(e.employee_id); if (ev.shiftKey) { processed.delete(id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Undone', false); renderList(); } else { const notesInput = document.getElementById('entryNotes'); if (notesInput) { entries[e.employee_id] = entries[e.employee_id] || {}; entries[e.employee_id].notes = notesInput.value; localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries)); } processed.add(id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Done & next', false); nav(1); } } return; }
         if (k === 'e') { ev.preventDefault(); doExport(ev.shiftKey); return; }
         if (k === 'c') { ev.preventDefault(); doClear(); return; }
         if (k === 's') { ev.preventDefault(); doStartFresh(); return; }
@@ -1124,8 +1130,8 @@
           cmdInput.value = '';
           if (v === 'n' || v === 'next') nav(1);
           else if (v === 'p' || v === 'prev') nav(-1);
-          else if (v === 'd' || v === 'done') { const e = filtered()[selectedIdx]; if (e && !isSupervisor(e)) { const id = e.employee_id; const notesInput = document.getElementById('entryNotes'); if (notesInput) { entries[id] = entries[id] || {}; entries[id].notes = notesInput.value; localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries)); } processed.add(id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Done & next', false); nav(1); } }
-          else if (v === 'ud' || v === 'undo' || v === 'undo done') { const e = filtered()[selectedIdx]; if (e && !isSupervisor(e) && processed.has(e.employee_id)) { processed.delete(e.employee_id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Undone', false); renderList(); } }
+          else if (v === 'd' || v === 'done') { const e = filtered()[selectedIdx]; if (e && !isSupervisor(e)) { const id = String(e.employee_id); const notesInput = document.getElementById('entryNotes'); if (notesInput) { entries[e.employee_id] = entries[e.employee_id] || {}; entries[e.employee_id].notes = notesInput.value; localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries)); } processed.add(id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Done & next', false); nav(1); } }
+          else if (v === 'ud' || v === 'undo' || v === 'undo done') { const e = filtered()[selectedIdx]; if (e && !isSupervisor(e)) { const id = String(e.employee_id); if (processed.has(id)) { processed.delete(id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Undone', false); renderList(); } } }
           else if (v === 'e' || v === 'export') doExport(false);
           else if (v === 'ed' || v === 'export done') doExport(true);
           else if (v === 'c' || v === 'clear') doClear();
