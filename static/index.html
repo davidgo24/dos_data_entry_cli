@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>DOS Data Entry — Transit</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23151518'/%3E%3Crect x='8' y='8' width='16' height='16' rx='2' fill='%234ade80'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -23,6 +24,27 @@
       --skip: #6b7280;
       --radius: 6px;
     }
+    [data-theme="comfort"] {
+      --bg: #f5f0e6;
+      --surface: #faf6f0;
+      --surface2: #efe9e0;
+      --border: #d4cdc4;
+      --text: #3d3a32;
+      --text-muted: #6b6559;
+      --accent: #2d7d4a;
+      --accent-dim: #228b44;
+      --highlight: #1a6b7c;
+      --warn: #b85c1a;
+      --cte: #6b5b95;
+      --skip: #6b6b6b;
+    }
+    [data-theme="comfort"] body { font-size: 15px; line-height: 1.6; }
+    [data-theme="comfort"] .run-group { background: rgba(0,0,0,0.06); }
+    [data-theme="comfort"] .dayoff-panel,
+    [data-theme="comfort"] .extratail-panel { background: rgba(0,0,0,0.06); }
+    [data-theme="comfort"] .run-pt-card { background: rgba(0,0,0,0.06); }
+    [data-theme="comfort"] .upload-box .error { color: #c53030; }
+    [data-theme="comfort"] .shortcut-overlay { background: rgba(0,0,0,0.6); }
     * { box-sizing: border-box; }
     body { margin: 0; font-family: 'IBM Plex Mono', 'JetBrains Mono', monospace; background: var(--bg); color: var(--text); min-height: 100vh; line-height: 1.5; font-size: 14px; }
     .cmd-bar {
@@ -65,7 +87,7 @@
     .emp-id { font-size: 0.7rem; color: var(--text-muted); margin-top: 1px; }
     .emp-item .list-badge { padding: 0.1rem 0.35rem; border-radius: 3px; font-size: 0.6rem; font-weight: 600; text-transform: uppercase; flex-shrink: 0; margin-left: auto; }
     .emp-item .list-badge.cte { background: rgba(167, 139, 250, 0.35); color: var(--cte); border: 1px solid var(--cte); }
-    .main { flex: 1; min-width: 0; overflow-y: auto; padding: 1.25rem 1.5rem; }
+    .main { flex: 1; min-width: 0; min-height: 200px; overflow-y: auto; padding: 1.25rem 1.5rem; background: var(--bg); }
     .main-inner { max-width: 860px; margin: 0 auto; min-width: 0; }
     .emp-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; }
     .emp-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
@@ -101,6 +123,15 @@
     .segment-total { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.4rem; padding-top: 0.3rem; border-top: 1px dashed var(--border); }
     .note-banner { background: rgba(245, 158, 11, 0.1); border-left: 3px solid var(--warn); padding: 0.5rem 0.75rem; margin-top: 0.4rem; border-radius: 0 4px 4px 0; font-size: 0.85rem; }
     .note-banner-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--warn); margin-bottom: 0.15rem; }
+    .custom-segments-section { margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+    .custom-segments-section label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem; color: var(--text); margin-bottom: 0.75rem; }
+    .custom-segments-form { margin-top: 0.75rem; }
+    .custom-seg-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .custom-seg-row label { margin: 0; min-width: auto; font-size: 0.8rem; color: var(--text-muted); }
+    .custom-seg-code-select { min-width: 140px; }
+    .custom-seg-start, .custom-seg-end { width: 60px; }
+    .custom-seg-remove { padding: 0.2rem 0.5rem; font-size: 0.75rem; color: var(--warn); background: transparent; border: 1px solid var(--border); border-radius: 4px; cursor: pointer; }
+    .custom-seg-add { margin-top: 0.5rem; font-size: 0.8rem; }
     .entry-section { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--border); }
     .entry-section h4 { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.75rem; }
     .entry-row { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin-bottom: 0.75rem; }
@@ -158,6 +189,9 @@
     .view-tab { padding: 0.3rem 0.6rem; border-radius: 4px; border: none; background: transparent; color: var(--text-muted); font-size: 0.8rem; cursor: pointer; font-family: inherit; }
     .view-tab:hover { color: var(--text); }
     .view-tab.active { background: var(--surface2); color: var(--highlight); }
+    .theme-toggle { padding: 0.3rem 0.6rem; border-radius: 4px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); font-size: 0.8rem; cursor: pointer; font-family: inherit; }
+    .theme-toggle:hover { color: var(--text); }
+    .theme-toggle.active { background: var(--surface2); color: var(--highlight); }
     .cte-view { padding: 1.5rem; max-width: 560px; margin: 0 auto; }
     .cte-view h2 { font-size: 1rem; margin: 0 0 1rem; color: var(--text-muted); }
     .cte-add { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
@@ -207,6 +241,7 @@
           <button class="view-tab" data-view="supervisors" id="tabSupervisors">Supervisors</button>
         </div>
         <span class="cmd-hints"><kbd>n</kbd>next <kbd>p</kbd>prev <kbd>d</kbd>done <kbd>Shift+d</kbd>undo done <kbd>e</kbd>export all <kbd>Shift+e</kbd>done only <kbd>c</kbd>clear <kbd>s</kbd>fresh <kbd>?</kbd>help</span>
+        <button type="button" class="theme-toggle" id="themeToggle" title="Eye comfort theme">Comfort</button>
         <div class="cmd-input-wrap"><input type="text" class="cmd-input" id="cmdInput" placeholder="type command..." autocomplete="off"></div>
       </div>
     </div>
@@ -307,6 +342,27 @@
     const STORAGE_KEY = 'dos_data_entry';
     const CTE_STORAGE_KEY = 'dos_cte_list';
     const SUPERVISORS_STORAGE_KEY = 'dos_supervisors_list';
+    const THEME_STORAGE_KEY = 'dos_data_entry_theme';
+
+    function applyTheme() {
+      const theme = localStorage.getItem(THEME_STORAGE_KEY);
+      const isComfort = theme === 'comfort';
+      document.documentElement.setAttribute('data-theme', isComfort ? 'comfort' : '');
+      const btn = document.getElementById('themeToggle');
+      if (btn) btn.classList.toggle('active', isComfort);
+    }
+    const CUSTOM_LABOR_OPTIONS = [
+      { code: '1020', label: '1020 reg' },
+      { code: '1000', label: '1000 guar' },
+      { code: '1013', label: '1013 ot 1.5' },
+      { code: '3002', label: '3002 cte 1.5' },
+      { code: '2001', label: '2001 Annual Leave' },
+      { code: '3008', label: '3008 Vacation' },
+      { code: '3009', label: '3009 Sick' },
+      { code: '2024', label: '2024 FMLA Sick' },
+      { code: '2025', label: '2025 FMLA Vacation' },
+      { code: '3010', label: '3010 Admin leave' }
+    ];
     function esc(v) { if (v == null || v === undefined) return ''; return String(v).replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$\{/g,'\\${'); }
     let EMP = [];
     let filter = 'operators';
@@ -397,8 +453,7 @@
       document.getElementById('app').classList.remove('hidden');
       document.getElementById('app').style.display = 'flex';
       bindApp();
-      renderList();
-      renderEmp();
+      switchView('data');
     }
 
     document.getElementById('uploadBtn').addEventListener('click', async () => {
@@ -431,8 +486,7 @@
           document.getElementById('app').style.display = 'flex';
           input.value = '';
           bindApp();
-          renderList();
-          renderEmp();
+          switchView('data');
         } else {
           err.textContent = 'Unexpected response; try Start Fresh and upload again.';
         }
@@ -461,6 +515,13 @@
       const [h, m] = s.split(':').map(x => parseInt(x, 10) || 0);
       return h * 60 + m;
     }
+    function formatTimeInput(val) {
+      if (!val || typeof val !== 'string') return '';
+      const digits = val.replace(/\D/g, '');
+      if (digits.length <= 2) return digits;
+      if (digits.length === 3) return digits.slice(0, 2) + ':' + digits.slice(2).padStart(2, '0');
+      return digits.slice(0, 2) + ':' + digits.slice(2, 4);
+    }
     function formatTime(mins) {
       const h = Math.floor(mins / 60) % 24;
       const m = Math.round(mins % 60);
@@ -474,12 +535,11 @@
       return null;
     }
 
-    function getActualSegments(r, employeeId, overrides) {
+    function getActualSegments(r, employeeId, overrides, runKey) {
       const ah = r.actual_hrs;
       if (ah == null || ah <= 0) return null;
       const isCTE = cteIds.has(String(employeeId));
-      const runKey = r.paddle || '';
-      const ov = overrides && overrides[runKey] ? overrides[runKey] : {};
+      const ov = overrides && runKey && overrides[runKey] ? overrides[runKey] : {};
 
       if (ah >= 7.99 && ah <= 8.01) {
         return [{ code: '1020 REG', start: r.actual_start, end: r.actual_end, type: 'reg' }];
@@ -557,10 +617,13 @@
     }
 
     function renderEmp() {
+      try {
       const F = filtered();
       const main = document.getElementById('mainContent');
+      if (!main) return;
       if (F.length === 0) { main.innerHTML = '<div class="empty-state"><p>No employees match.</p></div>'; setStatus('No employees', true); return; }
       const e = F[selectedIdx];
+      if (!e || !e.runs) { main.innerHTML = '<div class="empty-state"><p>No employee data.</p></div>'; return; }
       const empEntries = entries[e.employee_id] || {};
       const runOverrides = empEntries.runOverrides || {};
       const runSelections = empEntries.runSelections || {};
@@ -568,8 +631,17 @@
       const total = filtered().length;
       setStatus(`${pos}/${total} ${filter === 'operators' ? 'Operators' : 'All'} | ${e.name} | ${e.runs.length} runs`, true);
 
-      const runsHtml = e.runs.map(r => {
-        const segments = getActualSegments(r, e.employee_id, runOverrides);
+      main.innerHTML = '<div class="emp-card" style="padding:1rem">Loading...</div>';
+
+      let runsHtml;
+      try {
+      const paddleCounts = {};
+      e.runs.forEach(r => { const p = r.paddle || ''; paddleCounts[p] = (paddleCounts[p] || 0) + 1; });
+      runsHtml = e.runs.map((r, runIdx) => {
+        const runKey = (r.paddle || '') + '|' + runIdx;
+        const showTimeInHeader = (paddleCounts[r.paddle || ''] || 0) > 1 && (r.planned_start || r.actual_start);
+        const paddleLabel = showTimeInHeader ? `${esc(r.paddle || '')} (${esc(r.actual_start || r.planned_start || '')}–${esc(r.actual_end || r.planned_end || '')})` : (r.paddle || '');
+        const segments = getActualSegments(r, e.employee_id, runOverrides, runKey);
         const noteBanners = [];
         if (r.driver_notes) noteBanners.push(`<div class="note-banner"><div class="note-banner-label">Driver Notes</div>${esc(r.driver_notes)}</div>`);
         if (r.internal_notes) noteBanners.push(`<div class="note-banner"><div class="note-banner-label">Internal Notes</div>${esc(r.internal_notes)}</div>`);
@@ -590,22 +662,22 @@
 
         const isCTE = cteIds.has(String(e.employee_id));
         const hasLpi = r.actual_hrs > 8 && r.planned_end && r.actual_end && parseTime(r.actual_end) > parseTime(r.planned_end);
-        const mainOT = (runOverrides[r.paddle] && runOverrides[r.paddle].mainOT) || (isCTE ? '3002' : '1013');
-        const lpiOT = (runOverrides[r.paddle] && runOverrides[r.paddle].lpiOT) || parseLpiFromNotes(r) || (isCTE ? '3002' : '1013');
+        const mainOT = (runOverrides[runKey] && runOverrides[runKey].mainOT) || (isCTE ? '3002' : '1013');
+        const lpiOT = (runOverrides[runKey] && runOverrides[runKey].lpiOT) || parseLpiFromNotes(r) || (isCTE ? '3002' : '1013');
 
         let overrideHtml = '';
         if (!isSupervisor(e) && r.actual_hrs > 8) {
           overrideHtml = `<div class="run-overrides">
             <label>Main OT:</label>
-            <select data-paddle="${esc(r.paddle)}" data-field="mainOT" class="run-ot-select">
+            <select data-paddle="${esc(runKey)}" data-field="mainOT" class="run-ot-select">
               <option value="1013" ${mainOT === '1013' ? 'selected' : ''}>1013 OT1.5</option>
               <option value="3002" ${mainOT === '3002' ? 'selected' : ''}>3002 CTE</option>
             </select>
-            ${hasLpi ? `<label>LPI:</label><select data-paddle="${esc(r.paddle)}" data-field="lpiOT" class="run-ot-select"><option value="1013" ${lpiOT === '1013' ? 'selected' : ''}>1013 OT1.5</option><option value="3002" ${lpiOT === '3002' ? 'selected' : ''}>3002 CTE</option></select>` : ''}
+            ${hasLpi ? `<label>LPI:</label><select data-paddle="${esc(runKey)}" data-field="lpiOT" class="run-ot-select"><option value="1013" ${lpiOT === '1013' ? 'selected' : ''}>1013 OT1.5</option><option value="3002" ${lpiOT === '3002' ? 'selected' : ''}>3002 CTE</option></select>` : ''}
           </div>`;
         }
 
-        const sel = runSelections[r.paddle] || {};
+        const sel = (runSelections[runKey] || (runIdx === 0 ? runSelections[r.paddle] : null)) || {};
         const includeRun = sel.use !== false;
         const plannedOrActual = sel.plannedOrActual || 'actual';
         const laborCode = sel.laborCode || '';
@@ -626,51 +698,98 @@
         const plannedTimes = (r.planned_start && r.planned_end) ? `${esc(r.planned_start)} – ${esc(r.planned_end)}` : '—';
         const actualTimes = (r.actual_start && r.actual_end) ? `${esc(r.actual_start)} – ${esc(r.actual_end)}` : '—';
         const dayoffHtml = includeRun ? `
-          <div class="dayoff-link" data-paddle="${esc(r.paddle)}" data-action="toggle">${dayoffExpanded ? '▼' : '▶'} Day off? (paid as OT)</div>
-          ${dayoffExpanded ? `<div class="dayoff-panel" data-paddle="${esc(r.paddle)}">
-            <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;cursor:pointer"><input type="checkbox" class="dayoff-paid-cb" data-paddle="${esc(r.paddle)}" ${paidAsOt ? 'checked' : ''}> Paid as OT (uses actual times)</label>
+          <div class="dayoff-link" data-paddle="${esc(runKey)}" data-action="toggle">${dayoffExpanded ? '▼' : '▶'} Day off? (paid as OT)</div>
+          ${dayoffExpanded ? `<div class="dayoff-panel" data-paddle="${esc(runKey)}">
+            <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;cursor:pointer"><input type="checkbox" class="dayoff-paid-cb" data-paddle="${esc(runKey)}" ${paidAsOt ? 'checked' : ''}> Paid as OT (uses actual times)</label>
             ${paidAsOt ? `<div class="dayoff-options">
-              <label><input type="radio" name="dayoff-mode-${esc(e.employee_id)}-${esc(r.paddle)}" value="single" ${paidAsOtMode === 'single' ? 'checked' : ''}> Single: </label>
-              <select class="dayoff-single-select" data-paddle="${esc(r.paddle)}" style="margin-right:0.5rem"><option value="1013" ${paidAsOtCode === '1013' ? 'selected' : ''}>1013</option><option value="3002" ${paidAsOtCode === '3002' ? 'selected' : ''}>3002</option></select>
-              <label><input type="radio" name="dayoff-mode-${esc(e.employee_id)}-${esc(r.paddle)}" value="split" ${paidAsOtMode === 'split' ? 'checked' : ''}> Split: </label>
-              <input type="number" class="dayoff-hrs-1013" data-paddle="${esc(r.paddle)}" data-total="${r.actual_hrs != null ? r.actual_hrs : 0}" min="0" max="${r.actual_hrs != null ? r.actual_hrs : 24}" step="0.25" value="${Math.min(paidAsOtHrs1013, r.actual_hrs != null ? r.actual_hrs : 24)}" placeholder="hrs" style="margin-right:0.25rem;width:52px"> hrs 1013
+              <label><input type="radio" name="dayoff-mode-${esc(e.employee_id)}-${esc(runKey)}" value="single" ${paidAsOtMode === 'single' ? 'checked' : ''}> Single: </label>
+              <select class="dayoff-single-select" data-paddle="${esc(runKey)}" style="margin-right:0.5rem"><option value="1013" ${paidAsOtCode === '1013' ? 'selected' : ''}>1013</option><option value="3002" ${paidAsOtCode === '3002' ? 'selected' : ''}>3002</option></select>
+              <label><input type="radio" name="dayoff-mode-${esc(e.employee_id)}-${esc(runKey)}" value="split" ${paidAsOtMode === 'split' ? 'checked' : ''}> Split: </label>
+              <input type="number" class="dayoff-hrs-1013" data-paddle="${esc(runKey)}" data-total="${r.actual_hrs != null ? r.actual_hrs : 0}" min="0" max="${r.actual_hrs != null ? r.actual_hrs : 24}" step="0.25" value="${Math.min(paidAsOtHrs1013, r.actual_hrs != null ? r.actual_hrs : 24)}" placeholder="hrs" style="margin-right:0.25rem;width:52px"> hrs 1013
               <span class="dayoff-hrs-3002-display" style="font-size:0.8rem;color:var(--text-muted)">(rest as 3002)</span>
               <span style="font-size:0.7rem;color:var(--text-muted);margin-left:0.25rem">max ${r.actual_hrs != null ? formatHrs(r.actual_hrs) : '—'} hrs total</span>
             </div>` : ''}
           </div>` : ''}` : '';
         const extratailHtml = includeRun ? `
-          <div class="extratail-link" data-paddle="${esc(r.paddle)}" data-action="toggle">${extraTailExpanded ? '▼' : '▶'} Extra time? (append OT)</div>
-          ${extraTailExpanded ? `<div class="extratail-panel" data-paddle="${esc(r.paddle)}">
-            <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;cursor:pointer"><input type="checkbox" class="extratail-cb" data-paddle="${esc(r.paddle)}" ${extraTail ? 'checked' : ''}> Add extra time (e.g. trainer +2 hrs)</label>
+          <div class="extratail-link" data-paddle="${esc(runKey)}" data-action="toggle">${extraTailExpanded ? '▼' : '▶'} Extra time? (append OT)</div>
+          ${extraTailExpanded ? `<div class="extratail-panel" data-paddle="${esc(runKey)}">
+            <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.85rem;cursor:pointer"><input type="checkbox" class="extratail-cb" data-paddle="${esc(runKey)}" ${extraTail ? 'checked' : ''}> Add extra time (e.g. trainer +2 hrs)</label>
             ${extraTail ? `<div class="extratail-options">
-              <input type="number" class="extratail-hrs" data-paddle="${esc(r.paddle)}" min="0.25" max="24" step="0.25" value="${extraTailHrs || 2}" placeholder="hrs" style="width:52px;margin-right:0.25rem"> hrs at
-              <select class="extratail-code-select" data-paddle="${esc(r.paddle)}" style="margin-right:0.5rem"><option value="1013" ${extraTailCode === '1013' ? 'selected' : ''}>1013</option><option value="3002" ${extraTailCode === '3002' ? 'selected' : ''}>3002</option></select>
+              <input type="number" class="extratail-hrs" data-paddle="${esc(runKey)}" min="0.25" max="24" step="0.25" value="${extraTailHrs || 2}" placeholder="hrs" style="width:52px;margin-right:0.25rem"> hrs at
+              <select class="extratail-code-select" data-paddle="${esc(runKey)}" style="margin-right:0.5rem"><option value="1013" ${extraTailCode === '1013' ? 'selected' : ''}>1013</option><option value="3002" ${extraTailCode === '3002' ? 'selected' : ''}>3002</option></select>
               <span style="font-size:0.7rem;color:var(--text-muted)">appends after main run end</span>
             </div>` : ''}
           </div>` : ''}` : '';
-        const runSelectHtml = `<div class="run-select ${includeRun ? '' : 'voided'}" data-paddle="${esc(r.paddle)}">
+        const runSelectHtml = `<div class="run-select ${includeRun ? '' : 'voided'}" data-paddle="${esc(runKey)}">
           ${includeRun ? `<span class="run-select-label">${ptLabel}</span>
           <div class="run-pt-cards">
-            <div class="run-pt-card ${!paidAsOt && plannedOrActual === 'planned' ? 'selected' : ''}" data-pt="planned" data-paddle="${esc(r.paddle)}" tabindex="0" role="button">
+            <div class="run-pt-card ${!paidAsOt && plannedOrActual === 'planned' ? 'selected' : ''}" data-pt="planned" data-paddle="${esc(runKey)}" tabindex="0" role="button">
               <div class="run-pt-card-label">Planned</div>
               <div class="run-pt-card-time">${plannedTimes}</div>
               <div class="run-pt-card-hrs" style="font-size:0.75rem;color:var(--text-muted)">${formatHrs(r.planned_hrs)} hrs</div>
             </div>
-            <div class="run-pt-card ${!paidAsOt && plannedOrActual === 'actual' ? 'selected' : ''}" data-pt="actual" data-paddle="${esc(r.paddle)}" tabindex="0" role="button">
+            <div class="run-pt-card ${!paidAsOt && plannedOrActual === 'actual' ? 'selected' : ''}" data-pt="actual" data-paddle="${esc(runKey)}" tabindex="0" role="button">
               <div class="run-pt-card-label">Actual</div>
               <div class="run-pt-card-time">${actualTimes}</div>
               <div class="run-pt-card-hrs" style="font-size:0.75rem;color:var(--text-muted)">${r.actual_hrs != null ? formatHrs(r.actual_hrs) + ' hrs' : '—'}</div>
             </div>
-          </div>${dayoffHtml}${extratailHtml}${isLeaveRun ? `<label style="display:block;margin-top:0.5rem;font-size:0.75rem">Labor:</label><input type="text" class="run-labor-input" data-paddle="${esc(r.paddle)}" placeholder="${suggestLabor || 'e.g. 2024'}" value="${esc(laborCode)}" maxlength="10" style="width:70px" title="Leave code">` : `<span class="run-select-label" style="font-size:0.7rem;opacity:0.8;margin-top:0.35rem;display:block">→ 1020,1000,1013,3002 from segments</span>`}` : '<span class="run-select-hint">Click card to include</span>'}
+          </div>${dayoffHtml}${extratailHtml}${isLeaveRun ? `<label style="display:block;margin-top:0.5rem;font-size:0.75rem">Labor:</label><input type="text" class="run-labor-input" data-paddle="${esc(runKey)}" placeholder="${suggestLabor || 'e.g. 2024'}" value="${esc(laborCode)}" maxlength="10" style="width:70px" title="Leave code">` : `<span class="run-select-label" style="font-size:0.7rem;opacity:0.8;margin-top:0.35rem;display:block">→ 1020,1000,1013,3002 from segments</span>`}` : '<span class="run-select-hint">Click card to include</span>'}
         </div>`;
 
-        return `<div class="run-card ${includeRun ? 'run-card-included' : ''}" data-paddle="${esc(r.paddle)}" data-include="${includeRun ? 'true' : 'false'}" tabindex="0" role="button"><div class="run-header"><span class="run-paddle">${esc(r.paddle)}</span>${r.block ? '<span class="run-block">Block ' + esc(r.block) + '</span>' : ''}</div><div class="run-times"><div class="run-group"><div class="run-group-label">Planned</div><div class="run-group-time">${esc(r.planned_start)} – ${esc(r.planned_end)}</div><div class="run-group-hrs hrs">${formatHrs(r.planned_hrs)} hrs</div></div><div class="run-group"><div class="run-group-label">Actual</div>${actualHtml}</div></div>${r.vehicle ? '<div style="margin-top:0.4rem;font-size:0.8rem;color:var(--text-muted)">Vehicle: ' + esc(r.vehicle) + '</div>' : ''}${overrideHtml}${runSelectHtml}${noteBanners.join('')}</div>`;
+        return `<div class="run-card ${includeRun ? 'run-card-included' : ''}" data-paddle="${esc(runKey)}" data-include="${includeRun ? 'true' : 'false'}" tabindex="0" role="button"><div class="run-header"><span class="run-paddle">${esc(paddleLabel)}</span>${r.block ? '<span class="run-block">Block ' + esc(r.block) + '</span>' : ''}</div><div class="run-times"><div class="run-group"><div class="run-group-label">Planned</div><div class="run-group-time">${esc(r.planned_start)} – ${esc(r.planned_end)}</div><div class="run-group-hrs hrs">${formatHrs(r.planned_hrs)} hrs</div></div><div class="run-group"><div class="run-group-label">Actual</div>${actualHtml}</div></div>${r.vehicle ? '<div style="margin-top:0.4rem;font-size:0.8rem;color:var(--text-muted)">Vehicle: ' + esc(r.vehicle) + '</div>' : ''}${overrideHtml}${runSelectHtml}${noteBanners.join('')}</div>`;
       }).join('');
+      } catch (runsErr) {
+        main.innerHTML = `<div class="emp-card"><div class="emp-header"><div><div class="emp-name-lg">${esc(e.name)}</div><div class="emp-id-lg">${esc(e.employee_id)}</div></div></div><div class="empty-state"><p>Error loading runs: ${esc(String(runsErr.message || runsErr))}</p><pre style="font-size:0.7rem;overflow:auto;max-height:200px">${esc(runsErr.stack || '')}</pre></div></div>`;
+        return;
+      }
 
       const badgeClass = isSupervisor(e) ? 'supervisor' : (cteIds.has(String(e.employee_id)) ? 'cte' : 'operator');
       const badgeText = isSupervisor(e) ? 'Sup' : (cteIds.has(String(e.employee_id)) ? 'CTE · 3002' : 'Op');
 
-      main.innerHTML = `<div class="emp-card"><div class="emp-header"><div><div class="emp-name-lg">${esc(e.name)}</div><div class="emp-id-lg">${esc(e.employee_id)}</div></div><span class="badge ${badgeClass}">${badgeText}</span></div><div class="runs">${runsHtml}</div>${!isSupervisor(e) ? '<div class="entry-section"><h4>Notes</h4><div class="entry-row"><label>Notes</label><input type="text" placeholder="Optional notes..." id="entryNotes"></div></div>' : ''}<div class="nav-mini"><span class="progress">${pos} / ${total}</span><div class="btns"><button class="nav-btn" id="btnPrev">← Prev</button>${!isSupervisor(e) ? '<button class="nav-btn primary" id="btnDone">Done & Next</button>' : ''}<button class="nav-btn" id="btnNext">Next →</button></div></div></div>`;
+      const useCustomSegments = !!empEntries.useCustomSegments;
+      const customSegments = empEntries.customSegments || [];
+      function laborSelectHtml(idx) {
+        const c = (customSegments[idx]?.code || '').trim();
+        const isPreset = CUSTOM_LABOR_OPTIONS.some(o => o.code === c);
+        const opts = CUSTOM_LABOR_OPTIONS.map(o => `<option value="${esc(o.code)}" ${c === o.code ? 'selected' : ''}>${esc(o.label)}</option>`).join('');
+        return `<select class="custom-seg-code-select" data-idx="${idx}"><option value="">—</option>${opts}<option value="_other_" ${!isPreset && c ? 'selected' : ''}>Other</option></select>${!isPreset && c ? `<input type="text" class="custom-seg-code-other" data-idx="${idx}" value="${esc(c)}" placeholder="code" maxlength="10" style="width:70px">` : `<input type="text" class="custom-seg-code-other" data-idx="${idx}" value="" placeholder="code" maxlength="10" style="width:70px;display:none">`}`;
+      }
+      const customSegsHtml = !isSupervisor(e) ? `
+        <div class="custom-segments-section">
+          <label><input type="checkbox" id="useCustomSegmentsCb" ${useCustomSegments ? 'checked' : ''}> Use custom segments (override runs)</label>
+          <div class="custom-segments-form" id="customSegmentsForm" style="${useCustomSegments ? '' : 'display:none'}">
+            <div class="custom-seg-row" data-idx="0">
+              <label>Segment 1:</label>
+              ${laborSelectHtml(0)}
+              <input type="text" class="custom-seg-start" placeholder="06:00" value="${esc(customSegments[0]?.start || '')}" maxlength="5">
+              <span>–</span>
+              <input type="text" class="custom-seg-end" placeholder="14:00" value="${esc(customSegments[0]?.end || '')}" maxlength="5">
+            </div>
+            <div class="custom-seg-row" data-idx="1" style="${customSegments.length >= 2 ? '' : 'display:none'}">
+              <label>Segment 2:</label>
+              ${laborSelectHtml(1)}
+              <input type="text" class="custom-seg-start" placeholder="14:00" value="${esc(customSegments[1]?.start || '')}" maxlength="5">
+              <span>–</span>
+              <input type="text" class="custom-seg-end" placeholder="16:00" value="${esc(customSegments[1]?.end || '')}" maxlength="5">
+              <button type="button" class="custom-seg-remove">Remove</button>
+            </div>
+            <div class="custom-seg-row" data-idx="2" style="${customSegments.length >= 3 ? '' : 'display:none'}">
+              <label>Segment 3:</label>
+              ${laborSelectHtml(2)}
+              <input type="text" class="custom-seg-start" placeholder="16:00" value="${esc(customSegments[2]?.start || '')}" maxlength="5">
+              <span>–</span>
+              <input type="text" class="custom-seg-end" placeholder="18:00" value="${esc(customSegments[2]?.end || '')}" maxlength="5">
+              <button type="button" class="custom-seg-remove">Remove</button>
+            </div>
+            <button type="button" class="nav-btn custom-seg-add" id="addCustomSeg" style="${customSegments.length >= 3 ? 'display:none' : ''}">+ Add segment</button>
+          </div>
+        </div>` : '';
+
+      const runsSectionHtml = useCustomSegments && !isSupervisor(e)
+        ? '<div class="empty-state" style="padding:1rem;margin:0 0 1rem"><p style="font-size:0.85rem;margin:0">Generated runs are ignored when using custom segments.</p></div>'
+        : `<div class="runs">${runsHtml}</div>`;
+
+      main.innerHTML = `<div class="emp-card"><div class="emp-header"><div><div class="emp-name-lg">${esc(e.name)}</div><div class="emp-id-lg">${esc(e.employee_id)}</div></div><span class="badge ${badgeClass}">${badgeText}</span></div>${customSegsHtml}${runsSectionHtml}${!isSupervisor(e) ? '<div class="entry-section"><h4>Notes</h4><div class="entry-row"><label>Notes</label><input type="text" placeholder="Optional notes..." id="entryNotes"></div></div>' : ''}<div class="nav-mini"><span class="progress">${pos} / ${total}</span><div class="btns"><button class="nav-btn" id="btnPrev">← Prev</button>${!isSupervisor(e) ? '<button class="nav-btn primary" id="btnDone">Done & Next</button>' : ''}<button class="nav-btn" id="btnNext">Next →</button></div></div></div>`;
 
       const id = e.employee_id;
       const notesInput = document.getElementById('entryNotes');
@@ -678,46 +797,69 @@
 
       function saveEntry() {
         if (isSupervisor(e)) return;
-        const ro = {};
-        main.querySelectorAll('.run-ot-select').forEach(sel => {
-          const p = sel.dataset.paddle;
-          if (!ro[p]) ro[p] = {};
-          ro[p][sel.dataset.field] = sel.value;
-        });
-        const rs = {};
-        main.querySelectorAll('.run-card[data-paddle]').forEach(card => {
-          const p = card.dataset.paddle;
-          const use = card.dataset.include === 'true';
-          const runSelect = card.querySelector('.run-select');
-          const ptCard = runSelect && runSelect.querySelector('.run-pt-card.selected');
-          const plannedOrActual = (ptCard && ptCard.dataset.pt) || 'actual';
-          const laborInput = runSelect && runSelect.querySelector('.run-labor-input');
-          const dayoffCb = runSelect && runSelect.querySelector('.dayoff-paid-cb');
-          const paidAsOt = dayoffCb && dayoffCb.checked;
-          const dayoffModeRadio = runSelect && runSelect.querySelector('input[name^="dayoff-mode-"]:checked');
-          const paidAsOtMode = (dayoffModeRadio && dayoffModeRadio.value) || 'single';
-          const singleSelect = runSelect && runSelect.querySelector('.dayoff-single-select');
-          const paidAsOtCode = (singleSelect && singleSelect.value) || '1013';
-          const hrs1013El = runSelect && runSelect.querySelector('.dayoff-hrs-1013');
-          const totalHrsVal = hrs1013El ? parseFloat(hrs1013El.dataset.total) || 0 : 0;
-          let paidAsOtHrs1013 = hrs1013El ? parseFloat(hrs1013El.value) || 0 : 0;
-          paidAsOtHrs1013 = Math.min(Math.max(0, paidAsOtHrs1013), totalHrsVal);
-          const dayoffPanel = runSelect && runSelect.querySelector('.dayoff-panel');
-          const extratailCb = runSelect && runSelect.querySelector('.extratail-cb');
-          const extraTail = extratailCb && extratailCb.checked;
-          const extratailHrsEl = runSelect && runSelect.querySelector('.extratail-hrs');
-          let extraTailHrs = extratailHrsEl ? parseFloat(extratailHrsEl.value) || 0 : 0;
-          extraTailHrs = Math.min(Math.max(0, extraTailHrs), 24);
-          const extratailCodeSel = runSelect && runSelect.querySelector('.extratail-code-select');
-          const extraTailCode = (extratailCodeSel && extratailCodeSel.value) || '1013';
-          const extratailPanel = runSelect && runSelect.querySelector('.extratail-panel');
-          rs[p] = { use, plannedOrActual, laborCode: (use && laborInput ? laborInput.value.trim() : '') || '', paidAsOt, paidAsOtMode, paidAsOtCode, paidAsOtHrs1013, dayoffExpanded: !!dayoffPanel, extraTail, extraTailHrs, extraTailCode, extraTailExpanded: !!extratailPanel };
-        });
+        const useCustomCb = document.getElementById('useCustomSegmentsCb');
+        const useCustomSegments = useCustomCb && useCustomCb.checked;
+        const customSegs = [];
+        if (useCustomSegments) {
+          main.querySelectorAll('.custom-seg-row').forEach(row => {
+            if (row.style.display === 'none') return;
+            const sel = row.querySelector('.custom-seg-code-select');
+            const otherInp = row.querySelector('.custom-seg-code-other');
+            let code = '';
+            if (sel && sel.value === '_other_' && otherInp) code = (otherInp.value || '').trim();
+            else if (sel && sel.value && sel.value !== '_other_') code = sel.value.trim();
+            const startInp = row.querySelector('.custom-seg-start');
+            const endInp = row.querySelector('.custom-seg-end');
+            const start = (startInp && startInp.value || '').trim();
+            const end = (endInp && endInp.value || '').trim();
+            customSegs.push({ code, start, end });
+          });
+        }
+        let ro = {};
+        let rs = entries[id]?.runSelections || {};
+        if (!useCustomSegments) {
+          main.querySelectorAll('.run-ot-select').forEach(sel => {
+            const p = sel.dataset.paddle;
+            if (!ro[p]) ro[p] = {};
+            ro[p][sel.dataset.field] = sel.value;
+          });
+          rs = {};
+          main.querySelectorAll('.run-card[data-paddle]').forEach(card => {
+            const p = card.dataset.paddle;
+            const use = card.dataset.include === 'true';
+            const runSelect = card.querySelector('.run-select');
+            const ptCard = runSelect && runSelect.querySelector('.run-pt-card.selected');
+            const plannedOrActual = (ptCard && ptCard.dataset.pt) || 'actual';
+            const laborInput = runSelect && runSelect.querySelector('.run-labor-input');
+            const dayoffCb = runSelect && runSelect.querySelector('.dayoff-paid-cb');
+            const paidAsOt = dayoffCb && dayoffCb.checked;
+            const dayoffModeRadio = runSelect && runSelect.querySelector('input[name^="dayoff-mode-"]:checked');
+            const paidAsOtMode = (dayoffModeRadio && dayoffModeRadio.value) || 'single';
+            const singleSelect = runSelect && runSelect.querySelector('.dayoff-single-select');
+            const paidAsOtCode = (singleSelect && singleSelect.value) || '1013';
+            const hrs1013El = runSelect && runSelect.querySelector('.dayoff-hrs-1013');
+            const totalHrsVal = hrs1013El ? parseFloat(hrs1013El.dataset.total) || 0 : 0;
+            let paidAsOtHrs1013 = hrs1013El ? parseFloat(hrs1013El.value) || 0 : 0;
+            paidAsOtHrs1013 = Math.min(Math.max(0, paidAsOtHrs1013), totalHrsVal);
+            const dayoffPanel = runSelect && runSelect.querySelector('.dayoff-panel');
+            const extratailCb = runSelect && runSelect.querySelector('.extratail-cb');
+            const extraTail = extratailCb && extratailCb.checked;
+            const extratailHrsEl = runSelect && runSelect.querySelector('.extratail-hrs');
+            let extraTailHrs = extratailHrsEl ? parseFloat(extratailHrsEl.value) || 0 : 0;
+            extraTailHrs = Math.min(Math.max(0, extraTailHrs), 24);
+            const extratailCodeSel = runSelect && runSelect.querySelector('.extratail-code-select');
+            const extraTailCode = (extratailCodeSel && extratailCodeSel.value) || '1013';
+            const extratailPanel = runSelect && runSelect.querySelector('.extratail-panel');
+            rs[p] = { use, plannedOrActual, laborCode: (use && laborInput ? laborInput.value.trim() : '') || '', paidAsOt, paidAsOtMode, paidAsOtCode, paidAsOtHrs1013, dayoffExpanded: !!dayoffPanel, extraTail, extraTailHrs, extraTailCode, extraTailExpanded: !!extratailPanel };
+          });
+        }
         const hasOverrides = Object.keys(ro).length > 0;
         entries[id] = {
           notes: notesInput?.value || '',
           runOverrides: hasOverrides ? ro : (entries[id] && entries[id].runOverrides) || {},
-          runSelections: rs
+          runSelections: rs,
+          useCustomSegments: useCustomSegments,
+          customSegments: customSegs
         };
         localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries));
       }
@@ -796,6 +938,69 @@
           if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); card.click(); }
         });
       });
+      const useCustomCb = document.getElementById('useCustomSegmentsCb');
+      if (useCustomCb) {
+        useCustomCb.addEventListener('change', () => { saveEntry(); renderEmp(); });
+      }
+      const addCustomSegBtn = document.getElementById('addCustomSeg');
+      if (addCustomSegBtn) {
+        addCustomSegBtn.addEventListener('click', () => {
+          saveEntry();
+          const segs = entries[id]?.customSegments || [];
+          if (segs.length >= 3) return;
+          entries[id] = entries[id] || { notes: '', runOverrides: {}, runSelections: {} };
+          entries[id].customSegments = [...segs, { code: '', start: '', end: '' }];
+          localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries));
+          renderEmp();
+        });
+      }
+      main.querySelectorAll('.custom-seg-remove').forEach(btn => {
+        btn.addEventListener('click', () => {
+          saveEntry();
+          const row = btn.closest('.custom-seg-row');
+          const idx = parseInt(row?.dataset.idx || '0', 10);
+          const segs = [...(entries[id]?.customSegments || [])];
+          if (idx > 0 && idx < segs.length) segs.splice(idx, 1);
+          else if (idx > 0) segs.pop();
+          entries[id] = entries[id] || { notes: '', runOverrides: {}, runSelections: {} };
+          entries[id].customSegments = segs;
+          localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries));
+          renderEmp();
+        });
+      });
+      main.querySelectorAll('.custom-seg-code-select').forEach(sel => {
+        sel.addEventListener('change', () => {
+          const row = sel.closest('.custom-seg-row');
+          const otherInp = row?.querySelector('.custom-seg-code-other');
+          if (otherInp) {
+            otherInp.style.display = sel.value === '_other_' ? '' : 'none';
+            if (sel.value !== '_other_') otherInp.value = '';
+          }
+          saveEntry();
+        });
+      });
+      main.querySelectorAll('.custom-seg-code-other').forEach(inp => {
+        inp.addEventListener('blur', () => saveEntry());
+        inp.addEventListener('input', () => saveEntry());
+      });
+      main.querySelectorAll('.custom-seg-start, .custom-seg-end').forEach(inp => {
+        inp.addEventListener('input', (ev) => {
+          const v = ev.target.value;
+          const digits = v.replace(/\D/g, '');
+          if (digits.length > 4) ev.target.value = formatTimeInput(digits.slice(0, 4));
+          else if (digits.length >= 2 && !v.includes(':')) ev.target.value = formatTimeInput(digits);
+          saveEntry();
+        });
+        inp.addEventListener('blur', (ev) => {
+          const v = (ev.target.value || '').trim();
+          if (v && /^\d{3,4}$/.test(v.replace(':', ''))) ev.target.value = formatTimeInput(v.replace(/\D/g, ''));
+          saveEntry();
+        });
+      });
+      } catch (err) {
+        const main = document.getElementById('mainContent');
+        if (main) main.innerHTML = '<div class="empty-state"><p>Error loading: ' + String(err.message || err) + '</p><pre style="font-size:0.7rem;overflow:auto;max-height:200px">' + (err.stack || '') + '</pre></div>';
+      }
     }
 
     function selectEmp(idx) { selectedIdx = idx; renderList(); renderEmp(); }
@@ -928,11 +1133,12 @@
 
     function segmentCodeToLabor(code) {
       if (!code) return '';
-      if (code.startsWith('1020')) return '1020';
-      if (code.startsWith('1000')) return '1000';
-      if (code.startsWith('1013')) return '1013';
-      if (code.startsWith('3002')) return '3002';
-      return code.split(/\s/)[0] || '';
+      const c = String(code).trim();
+      if (c.startsWith('1020')) return '1020';
+      if (c.startsWith('1000')) return '1000';
+      if (c.startsWith('1013')) return '1013';
+      if (c.startsWith('3002')) return '3002';
+      return (c.split(/\s/)[0] || c) || '';
     }
 
     function doExport(doneOnly) {
@@ -940,14 +1146,32 @@
       const tcpRows = [['employee_id','date_in','date_out','laborcode','time_in','time_out']];
       const legacyRows = [['employee_id','name','notes']];
       let hasTcp = false;
+      const invalidCustomSegs = [];
       const empsToExport = doneOnly ? EMP.filter(e => !isSupervisor(e) && processed.has(String(e.employee_id))) : EMP.filter(e => !isSupervisor(e));
       empsToExport.forEach(emp => {
         const x = entries[emp.employee_id] || {};
+        const useCustomSegments = !!x.useCustomSegments;
+        const customSegs = x.customSegments || [];
+        if (useCustomSegments && customSegs.length > 0) {
+          let validCount = 0;
+          customSegs.forEach(seg => {
+            const labor = segmentCodeToLabor(seg.code) || (seg.code || '').trim();
+            if (labor && seg.start && seg.end) {
+              tcpRows.push([emp.employee_id, scheduleDate, scheduleDate, labor, seg.start, seg.end]);
+              hasTcp = true;
+              validCount++;
+            }
+          });
+          if (validCount === 0) invalidCustomSegs.push(emp.name);
+          if (x.notes !== undefined) legacyRows.push([emp.employee_id, emp.name, x.notes || '']);
+          return;
+        }
         const rs = x.runSelections || {};
         const runOverrides = x.runOverrides || {};
-        const useRuns = emp.runs.filter(r => (rs[r.paddle] || {}).use !== false);
-        useRuns.forEach(r => {
-          const sel = rs[r.paddle] || {};
+        const runsWithKeys = (emp.runs || []).map((r, idx) => ({ r, runKey: (r.paddle || '') + '|' + idx }));
+        const useRuns = runsWithKeys.filter(({ r, runKey }) => ((rs[runKey] || (runKey.endsWith('|0') ? rs[r.paddle] : null)) || {}).use !== false);
+        useRuns.forEach(({ r, runKey }) => {
+          const sel = rs[runKey] || (runKey.endsWith('|0') ? rs[r.paddle] : {}) || {};
           const usePlanned = sel.plannedOrActual === 'planned';
           const runLabor = (sel.laborCode || '').trim();
           const isLeave = /FMLA|SICK|VAC|PTO|LEAVE|LWP/i.test(r.paddle || '');
@@ -996,7 +1220,7 @@
             }
             runEnd = r.planned_end || null;
           } else {
-            const segments = getActualSegments(r, emp.employee_id, runOverrides);
+            const segments = getActualSegments(r, emp.employee_id, runOverrides, runKey);
             if (segments && segments.length > 0) {
               segments.forEach(seg => {
                 const labor = segmentCodeToLabor(seg.code);
@@ -1018,11 +1242,29 @@
         });
         if (x.notes !== undefined) legacyRows.push([emp.employee_id, emp.name, x.notes || '']);
       });
+      const rowCount = hasTcp ? tcpRows.length - 1 : legacyRows.length - 1;
+      if (rowCount <= 0) {
+        setStatus(doneOnly ? 'No employees marked done to export' : 'No data to export', true);
+        return;
+      }
       const csv = hasTcp ? tcpRows.map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n')
         : legacyRows.map(r => r.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n');
       const suffix = doneOnly ? '_done' : '';
-      const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv); a.download = 'dos_tcp_' + new Date().toISOString().slice(0,10) + suffix + '.csv'; a.click();
-      setStatus('Exported ' + (hasTcp ? tcpRows.length - 1 + ' TCP rows' : 'CSV') + (doneOnly ? ' (done only)' : ''), false);
+      const rawDate = (window.DOS_DATA && window.DOS_DATA.date) || '';
+      const dateForFilename = rawDate ? String(rawDate).replace(/\//g, '-').trim() : new Date().toISOString().slice(0, 10);
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'dos_tcp_' + dateForFilename + suffix + '.csv';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      const exportMsg = 'Exported ' + (hasTcp ? rowCount + ' TCP rows' : 'CSV') + (doneOnly ? ' (done only)' : '');
+      const skipMsg = invalidCustomSegs.length > 0 ? '; ' + invalidCustomSegs.length + ' skipped (invalid custom segments)' : '';
+      setStatus(exportMsg + skipMsg, false);
     }
 
     function doClear() {
@@ -1103,19 +1345,24 @@
           if (ev.key === '?') shortcutOverlay.classList.remove('show');
           return;
         }
+        const k = ev.key.toLowerCase();
+        const isShortcut = k === 'e' || k === 'n' || k === 'j' || k === 'p' || k === 'k' || k === 'd' || k === 'c' || k === 's' || k === '?' || ev.key === 'ArrowRight' || ev.key === 'ArrowLeft';
+        if (isShortcut) {
+          ev.preventDefault();
+          ev.stopPropagation();
+        }
+        if (k === 'e') { doExport(ev.shiftKey); return; }
         if (isFormFocused()) return;
 
-        const k = ev.key.toLowerCase();
-        if (k === 'n' || k === 'j' || ev.key === 'ArrowRight') { ev.preventDefault(); nav(1); return; }
-        if (k === 'p' || k === 'k' || ev.key === 'ArrowLeft') { ev.preventDefault(); nav(-1); return; }
-        if (k === 'd') { ev.preventDefault(); const e = filtered()[selectedIdx]; if (e && !isSupervisor(e)) { const id = String(e.employee_id); if (ev.shiftKey) { processed.delete(id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Undone', false); renderList(); } else { const notesInput = document.getElementById('entryNotes'); if (notesInput) { entries[e.employee_id] = entries[e.employee_id] || {}; entries[e.employee_id].notes = notesInput.value; localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries)); } processed.add(id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Done & next', false); nav(1); } } return; }
-        if (k === 'e') { ev.preventDefault(); doExport(ev.shiftKey); return; }
-        if (k === 'c') { ev.preventDefault(); doClear(); return; }
-        if (k === 's') { ev.preventDefault(); doStartFresh(); return; }
-        if (k === '?') { ev.preventDefault(); shortcutOverlay.classList.add('show'); shortcutOverlay.focus(); return; }
+        if (k === 'n' || k === 'j' || ev.key === 'ArrowRight') { nav(1); return; }
+        if (k === 'p' || k === 'k' || ev.key === 'ArrowLeft') { nav(-1); return; }
+        if (k === 'd') { const e = filtered()[selectedIdx]; if (e && !isSupervisor(e)) { const id = String(e.employee_id); if (ev.shiftKey) { processed.delete(id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Undone', false); renderList(); } else { const notesInput = document.getElementById('entryNotes'); if (notesInput) { entries[e.employee_id] = entries[e.employee_id] || {}; entries[e.employee_id].notes = notesInput.value; localStorage.setItem(STORAGE_KEY + '_entries', JSON.stringify(entries)); } processed.add(id); localStorage.setItem(STORAGE_KEY + '_done', JSON.stringify([...processed])); setStatus('Done & next', false); nav(1); } } return; }
+        if (k === 'c') { doClear(); return; }
+        if (k === 's') { doStartFresh(); return; }
+        if (k === '?') { shortcutOverlay.classList.add('show'); shortcutOverlay.focus(); return; }
       }
 
-      document.addEventListener('keydown', handleKey);
+      document.addEventListener('keydown', handleKey, true);
       cmdInput.addEventListener('keydown', (ev) => {
         if (ev.key === 'Escape') { ev.preventDefault(); cmdInput.blur(); cmdInput.value = ''; return; }
         const k = ev.key.toLowerCase();
@@ -1196,6 +1443,13 @@
       });
     }
 
+    applyTheme();
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      const theme = localStorage.getItem(THEME_STORAGE_KEY);
+      const next = theme === 'comfort' ? '' : 'comfort';
+      localStorage.setItem(THEME_STORAGE_KEY, next);
+      applyTheme();
+    });
     loadCte();
     loadSupervisors();
     bindCteModal();
